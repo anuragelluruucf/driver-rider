@@ -73,7 +73,7 @@ for i, col in enumerate(df.columns, 1):
 print("\nKEY STATISTICS:")
 print(f"   Total orders: {len(df):,}")
 print(f"   Cancelled orders: {df['cancelled'].sum():,} ({df['cancelled'].mean():.2%})")
-print(f"   Delivered orders: {(~df['cancelled']).sum():,} ({(~df['cancelled']).mean():.2%})")
+print(f"   Delivered orders: {(df['cancelled'] == 0).sum():,} ({(df['cancelled'] == 0).mean():.2%})")
 print(f"   Unique riders: {df['rider_id'].nunique():,}")
 print(f"   Average orders per rider: {len(df) / df['rider_id'].nunique():.1f}")
 
