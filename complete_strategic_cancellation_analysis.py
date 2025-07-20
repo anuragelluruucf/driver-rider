@@ -417,7 +417,7 @@ print("   4. New rider test: Zero-history prediction capability")
 
 # Temporal validation
 print("\nTEMPORAL VALIDATION:")
-modeling_data['order_date'] = pd.to_datetime(modeling_data['order_date'])
+# Ensure 'order_date' is already converted to datetime earlier in the script
 early_period = modeling_data[modeling_data['order_date'] < modeling_data['order_date'].quantile(0.7)]
 late_period = modeling_data[modeling_data['order_date'] >= modeling_data['order_date'].quantile(0.7)]
 
