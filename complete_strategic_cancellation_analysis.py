@@ -54,7 +54,16 @@ if not os.path.exists(csv_path):
     if os.path.exists(zip_path):
         print("CSV not found. Extracting from zip...")
         with zipfile.ZipFile(zip_path, 'r') as zf:
-            zf.extract(csv_path)
+            for file_name in zf.namelist():
+                if os.path.basename(file_name) == os.path.basename(csv_path):
+                    safe_path = os.path.join(os.getcwd(), file_name)
+                    if os.path.commonprefix([safe_path, os.getcwd()]) == os.getcwd():
+                        zf.extract(file_name, os.getcwd())
+                    else:
+                        raise ValueError("Unsafe file path detected in ZIP archive")
+                    break
+            else:
+                raise FileNotFoundError(f"{csv_path} not found in ZIP archive")
     else:
         raise FileNotFoundError(f"{csv_path} or {zip_path} is required")
 df = pd.read_csv(csv_path)
