@@ -21,7 +21,8 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, roc_curve
-from sklearn.preprocessing import StandardScaler
+import os
+import zipfile
 import joblib
 import warnings
 warnings.filterwarnings('ignore')
@@ -45,25 +46,43 @@ print("\n" + "="*60)
 print("SECTION 1: DATA EXPLORATION")
 print("="*60)
 
-# Load the dataset
+# Load the dataset (extract if necessary)
 print("Loading dataset...")
-df = pd.read_csv('train_filtered_no_long_postpickup.csv')
+csv_path = 'train_filtered_no_long_postpickup.csv'
+zip_path = 'train_filtered_no_long_postpickup.zip'
+if not os.path.exists(csv_path):
+    if os.path.exists(zip_path):
+        print("CSV not found. Extracting from zip...")
+        with zipfile.ZipFile(zip_path, 'r') as zf:
+            for file_name in zf.namelist():
+                if os.path.basename(file_name) == os.path.basename(csv_path):
+                    safe_path = os.path.join(os.getcwd(), file_name)
+                    if os.path.commonprefix([safe_path, os.getcwd()]) == os.getcwd():
+                        zf.extract(file_name, os.getcwd())
+                    else:
+                        raise ValueError("Unsafe file path detected in ZIP archive")
+                    break
+            else:
+                raise FileNotFoundError(f"{csv_path} not found in ZIP archive")
+    else:
+        raise FileNotFoundError(f"{csv_path} or {zip_path} is required")
+df = pd.read_csv(csv_path)
 
-print(f"\n📊 DATASET OVERVIEW:")
+print("\nDATASET OVERVIEW:")
 print(f"   Total records: {len(df):,}")
 print(f"   Time period: {df['order_date'].min()} to {df['order_date'].max()}")
 print(f"   Total columns: {len(df.columns)}")
 
-print(f"\n📋 DATASET VARIABLES:")
+print("\nDATASET VARIABLES:")
 for i, col in enumerate(df.columns, 1):
     dtype = df[col].dtype
     null_count = df[col].isnull().sum()
     print(f"   {i:2d}. {col:<25} | {str(dtype):<10} | {null_count:,} nulls")
 
-print(f"\n📈 KEY STATISTICS:")
+print("\nKEY STATISTICS:")
 print(f"   Total orders: {len(df):,}")
 print(f"   Cancelled orders: {df['cancelled'].sum():,} ({df['cancelled'].mean():.2%})")
-print(f"   Delivered orders: {(~df['cancelled']).sum():,} ({(~df['cancelled']).mean():.2%})")
+print(f"   Delivered orders: {(df['cancelled'] == 0).sum():,} ({(df['cancelled'] == 0).mean():.2%})")
 print(f"   Unique riders: {df['rider_id'].nunique():,}")
 print(f"   Average orders per rider: {len(df) / df['rider_id'].nunique():.1f}")
 
@@ -81,7 +100,7 @@ print(f"Analyzing {len(cancelled_orders):,} cancelled orders...")
 
 # Categorize cancellation reasons
 cancellation_reasons = cancelled_orders['reason_text'].value_counts()
-print(f"\n🔍 CANCELLATION REASONS BREAKDOWN:")
+print("\nCANCELLATION REASONS BREAKDOWN:")
 print(f"{'Reason':<40} {'Count':<8} {'%':<6}")
 print("-" * 56)
 for reason, count in cancellation_reasons.head(10).items():
@@ -99,7 +118,7 @@ verification_difficulty = {
     'Customer requested cancellation': 'EASY (Customer confirms)'
 }
 
-print(f"\n🛡️ VERIFICATION DIFFICULTY RANKING:")
+print("\nVERIFICATION DIFFICULTY RANKING:")
 print("(Strategic exploitation potential)")
 print("-" * 50)
 for reason, difficulty in verification_difficulty.items():
@@ -121,7 +140,7 @@ print("="*60)
 bike_issues = df[df['reason_text'] == 'Cancel order due to bike issue'].copy()
 other_cancellations = cancelled_orders[cancelled_orders['reason_text'] != 'Cancel order due to bike issue'].copy()
 
-print(f"🚲 BIKE ISSUE STATISTICS:")
+print("BIKE ISSUE STATISTICS:")
 print(f"   Total bike issues: {len(bike_issues):,}")
 print(f"   % of all cancellations: {len(bike_issues)/len(cancelled_orders)*100:.1f}%")
 print(f"   % of all orders: {len(bike_issues)/len(df)*100:.1f}%")
@@ -132,20 +151,20 @@ bike_post_pickup_rate = bike_issues['cancel_after_pickup'].mean()
 
 other_post_pickup_rate = other_cancellations['cancel_after_pickup'].mean()
 
-print(f"\n⚠️ STRATEGIC BEHAVIOR EVIDENCE:")
+print("\nSTRATEGIC BEHAVIOR EVIDENCE:")
 print(f"   Bike issues after pickup: {bike_post_pickup:,} / {len(bike_issues):,}")
 print(f"   Post-pickup rate (bike): {bike_post_pickup_rate:.1%}")
 print(f"   Post-pickup rate (other): {other_post_pickup_rate:.1%}")
 print(f"   Strategic multiplier: {bike_post_pickup_rate/other_post_pickup_rate:.1f}x higher!")
 
-print(f"\n🎯 WHY BIKE ISSUES ARE STRATEGIC:")
+print("\nWHY BIKE ISSUES ARE STRATEGIC:")
 print("   1. Information Asymmetry: Platform cannot verify bike condition remotely")
 print("   2. Low Verification Cost: Only requires photo vs calls/GPS for others")
 print("   3. Post-pickup Timing: Can 'discover' bike problems after accepting order")
 print("   4. Moral Hazard: Hidden actions after order acceptance")
 
 # Temporal analysis
-print(f"\n⏰ TEMPORAL PATTERNS (Strategic Timing):")
+print("\nTEMPORAL PATTERNS (Strategic Timing):")
 bike_issues['hour'] = pd.to_datetime(bike_issues['order_time']).dt.hour
 hourly_bike_issues = bike_issues.groupby('hour').size()
 peak_hours = hourly_bike_issues.nlargest(3)
@@ -160,7 +179,7 @@ print("\n" + "="*60)
 print("SECTION 4: ECONOMIC THEORY - WHY STRATEGIC BEHAVIOR OCCURS")
 print("="*60)
 
-print("📚 THEORETICAL FOUNDATION:")
+print("THEORETICAL FOUNDATION:")
 print("   1. Information Asymmetry (Akerlof 1970):")
 print("      → Riders know true bike condition, platform doesn't")
 print("      → Creates incentive for false claims when convenient")
@@ -177,14 +196,14 @@ print("   4. Platform Economics (Liu & Li 2023):")
 print("      → Two-sided market creates verification constraints")
 print("      → Platforms balance rider flexibility vs fraud prevention")
 
-print(f"\n💡 STRATEGIC CANCELLATION SCENARIOS:")
-print("   📍 Long Distance Orders: High effort, low compensation")
+print("\nSTRATEGIC CANCELLATION SCENARIOS:")
+print("   - Long Distance Orders: High effort, low compensation")
 print("      → 'Bike issue' allows cancellation without penalty")
-print("   📍 Traffic/Weather: Unexpected complications arise")
+print("   - Traffic/Weather: Unexpected complications arise")
 print("      → Easier to claim bike problem than explain circumstances")
-print("   📍 Better Opportunities: Rider finds more profitable order")
+print("   - Better Opportunities: Rider finds more profitable order")
 print("      → Strategic cancellation to pursue better option")
-print("   📍 Time Pressure: Running late for personal commitments")
+print("   - Time Pressure: Running late for personal commitments")
 print("      → Quick exit strategy without reputation damage")
 
 # ============================================================================
@@ -195,12 +214,12 @@ print("\n" + "="*60)
 print("SECTION 5: PREDICTIVE MODELING")
 print("="*60)
 
-print("🎯 PREDICTION CHALLENGE:")
+print("PREDICTION CHALLENGE:")
 print("   Can we predict which bike issues are strategic vs genuine?")
 print("   Features available: Distance, Time, Rider History, Context")
 
 # Create features for modeling
-print("\n🔧 FEATURE ENGINEERING:")
+print("\nFEATURE ENGINEERING:")
 modeling_data = bike_issues.copy()
 
 # Target variable: Post-pickup cancellation as proxy for strategic behavior
@@ -244,7 +263,7 @@ for col in feature_cols:
 X = modeling_data[feature_cols].copy()
 y = modeling_data['strategic_indicator']
 
-print(f"\n📊 MODELING DATA:")
+print("\nMODELING DATA:")
 print(f"   Samples: {len(X):,}")
 print(f"   Features: {len(feature_cols)}")
 print(f"   Strategic cases: {y.sum():,} ({y.mean():.1%})")
@@ -273,7 +292,7 @@ models = {
 model_results = {}
 
 for name, model in models.items():
-    print(f"\n🤖 Training {name}...")
+    print(f"\nTraining {name}...")
     
     # Train model
     model.fit(X_train, y_train)
@@ -303,14 +322,14 @@ for name, model in models.items():
 best_model_name = max(model_results.keys(), key=lambda x: model_results[x]['auc'])
 best_model = model_results[best_model_name]['model']
 
-print(f"\n🏆 BEST MODEL: {best_model_name}")
+print(f"\nBEST MODEL: {best_model_name}")
 print(f"   AUC Score: {model_results[best_model_name]['auc']:.3f}")
 
 # Detailed evaluation of best model
 y_pred_best = model_results[best_model_name]['predictions']
 y_proba_best = model_results[best_model_name]['probabilities']
 
-print(f"\n📈 DETAILED PERFORMANCE:")
+print("\nDETAILED PERFORMANCE:")
 print(classification_report(y_test, y_pred_best, target_names=['Genuine', 'Strategic']))
 
 # Feature importance (for Random Forest)
@@ -320,7 +339,7 @@ if best_model_name == 'Random Forest':
         'importance': best_model.feature_importances_
     }).sort_values('importance', ascending=False)
     
-    print(f"\n🔍 FEATURE IMPORTANCE:")
+    print(f"\nFEATURE IMPORTANCE:")
     for _, row in feature_importance.iterrows():
         print(f"   {row['feature']:<20}: {row['importance']:.3f}")
 
@@ -332,13 +351,13 @@ print("\n" + "="*60)
 print("SECTION 7: LUCAS CRITIQUE COMPLIANCE - NEW RIDER PREDICTIONS")
 print("="*60)
 
-print("❓ LUCAS CRITIQUE CHALLENGE:")
+print("LUCAS CRITIQUE CHALLENGE:")
 print("   Traditional models break when policies change")
 print("   Our model must predict for new riders with zero history")
 print("   Test: Can we predict strategic behavior for completely new riders?")
 
 # Simulate new rider scenarios
-print(f"\n👤 NEW RIDER SIMULATION:")
+print("\nNEW RIDER SIMULATION:")
 print("   Creating scenarios for riders with zero order history...")
 
 new_rider_scenarios = pd.DataFrame({
@@ -354,7 +373,7 @@ new_rider_scenarios = pd.DataFrame({
 # Predict for new riders
 new_rider_predictions = best_model.predict_proba(new_rider_scenarios)[:, 1]
 
-print(f"\n🔮 NEW RIDER PREDICTIONS:")
+print("\nNEW RIDER PREDICTIONS:")
 print(f"{'Scenario':<12} {'Distance':<10} {'Peak Hour':<10} {'Strategic Prob':<15}")
 print("-" * 50)
 for i, (_, scenario) in enumerate(new_rider_scenarios.iterrows()):
@@ -362,14 +381,14 @@ for i, (_, scenario) in enumerate(new_rider_scenarios.iterrows()):
     peak = "Yes" if scenario['is_peak_hour'] else "No"
     print(f"Scenario {i+1:<3} {scenario['distance']:<10.1f} {peak:<10} {prob:<15.1%}")
 
-print(f"\n💡 INTERPRETATION:")
+print("\nINTERPRETATION:")
 print(f"   • Model CAN predict for new riders using population priors")
 print(f"   • Longer distances increase strategic probability")
 print(f"   • Peak hours show higher strategic risk")
 print(f"   • Base rate for new riders: {new_rider_predictions.mean():.1%}")
 
 # Economic model parameters (simplified structural model)
-print(f"\n⚖️ ECONOMIC MODEL INTERPRETATION:")
+print("\nECONOMIC MODEL INTERPRETATION:")
 if best_model_name == 'Logistic Regression':
     coefs = best_model.coef_[0]
     intercept = best_model.intercept_[0]
@@ -390,17 +409,17 @@ print("\n" + "="*60)
 print("SECTION 8: MODEL TESTING AND VALIDATION")
 print("="*60)
 
-print("🧪 TESTING METHODOLOGY:")
+print("TESTING METHODOLOGY:")
 print("   1. Cross-validation: 5-fold CV for robust performance estimation")
 print("   2. Hold-out test: 30% of data never seen during training")
 print("   3. Temporal validation: Test on different time periods")
 print("   4. New rider test: Zero-history prediction capability")
 
 # Temporal validation
-print(f"\n📅 TEMPORAL VALIDATION:")
-bike_issues['order_date'] = pd.to_datetime(bike_issues['order_date'])
-early_period = bike_issues[bike_issues['order_date'] < bike_issues['order_date'].quantile(0.7)]
-late_period = bike_issues[bike_issues['order_date'] >= bike_issues['order_date'].quantile(0.7)]
+print("\nTEMPORAL VALIDATION:")
+# Ensure 'order_date' is already converted to datetime earlier in the script
+early_period = modeling_data[modeling_data['order_date'] < modeling_data['order_date'].quantile(0.7)]
+late_period = modeling_data[modeling_data['order_date'] >= modeling_data['order_date'].quantile(0.7)]
 
 print(f"   Early period: {len(early_period):,} samples")
 print(f"   Late period: {len(late_period):,} samples")
@@ -421,7 +440,7 @@ if len(early_period) > 100 and len(late_period) > 50:
     print(f"   Model maintains performance across time ✓")
 
 # Business impact simulation
-print(f"\n💼 BUSINESS IMPACT SIMULATION:")
+print("\nBUSINESS IMPACT SIMULATION:")
 total_bike_issues = len(bike_issues)
 strategic_bike_issues = bike_issues['cancel_after_pickup'].sum()
 detection_rate = model_results[best_model_name]['auc']
@@ -441,26 +460,26 @@ print("\n" + "="*60)
 print("SECTION 9: RESULT INTERPRETATION")
 print("="*60)
 
-print("🎯 MODEL CAPABILITIES:")
+print("MODEL CAPABILITIES:")
 print(f"   ✓ Identifies strategic bike issues with {model_results[best_model_name]['auc']:.1%} accuracy")
 print(f"   ✓ Works for new riders (Lucas Critique compliant)")
 print(f"   ✓ Based on economic theory (utility maximization)")
 print(f"   ✓ Robust across time periods")
 
-print(f"\n📊 KEY FINDINGS:")
+print("\nKEY FINDINGS:")
 print(f"   • {bike_post_pickup_rate:.1%} of bike issues occur post-pickup (vs {other_post_pickup_rate:.1%} for others)")
 print(f"   • {bike_post_pickup_rate/other_post_pickup_rate:.1f}x higher rate indicates systematic strategic behavior")
 print(f"   • Distance is strongest predictor of strategic cancellation")
 print(f"   • New riders have {new_rider_predictions.mean():.1%} base strategic probability")
 print(f"   • Peak hours increase strategic risk")
 
-print(f"\n⚖️ ECONOMIC INSIGHTS:")
+print("\nECONOMIC INSIGHTS:")
 print(f"   • Information asymmetry enables platform exploitation")
 print(f"   • Verification costs create moral hazard")
 print(f"   • Riders optimize utility through strategic cancellations")
 print(f"   • Model captures deep preferences, not just behaviors")
 
-print(f"\n🛡️ POLICY IMPLICATIONS:")
+print("\nPOLICY IMPLICATIONS:")
 print(f"   1. Enhanced Verification: Require video for bike issues")
 print(f"   2. Experience Thresholds: Restrict new rider bike claims")
 print(f"   3. Distance Penalties: Progressive costs for long-distance claims")
@@ -474,25 +493,25 @@ print("\n" + "="*60)
 print("SECTION 10: CONCLUSION")
 print("="*60)
 
-print("🏁 RESEARCH QUESTION ANSWERED:")
+print("RESEARCH QUESTION ANSWERED:")
 print("   ✅ YES, we CAN predict driver-driven cancellations (bike issues)")
 print("   ✅ Model is Lucas Critique-proof (works for new riders)")
 print("   ✅ Based on economic theory (utility maximization)")
 print("   ✅ Achieves high accuracy in detection")
 
-print(f"\n🔬 SCIENTIFIC CONTRIBUTIONS:")
+print("\nSCIENTIFIC CONTRIBUTIONS:")
 print(f"   1. First economic model for platform strategic cancellations")
 print(f"   2. Identification of information asymmetry exploitation")
 print(f"   3. Lucas Critique-proof prediction methodology")
 print(f"   4. Evidence-based policy recommendations")
 
-print(f"\n📈 PRACTICAL IMPACT:")
+print("\nPRACTICAL IMPACT:")
 print(f"   • Platform can detect strategic behavior in real-time")
 print(f"   • Reduce fraudulent cancellations through targeted verification")
 print(f"   • Improve rider screening and onboarding")
 print(f"   • Design policies that remain effective over time")
 
-print(f"\n🔮 FUTURE RESEARCH:")
+print("\nFUTURE RESEARCH:")
 print(f"   • Extend to other cancellation types")
 print(f"   • Dynamic learning models")
 print(f"   • Multi-platform validation")
@@ -501,7 +520,7 @@ print(f"   • Intervention effectiveness studies")
 # Save the best model
 model_filename = 'strategic_cancellation_predictor_complete.pkl'
 joblib.dump(best_model, model_filename)
-print(f"\n💾 MODEL SAVED: {model_filename}")
+print(f"\nMODEL SAVED: {model_filename}")
 
 print(f"\n" + "="*80)
 print("ANALYSIS COMPLETE")
@@ -543,6 +562,6 @@ axes[1,1].tick_params(axis='x', rotation=45)
 
 plt.tight_layout()
 plt.savefig('strategic_cancellation_analysis_summary.png', dpi=300, bbox_inches='tight')
-print(f"\n📊 VISUALIZATION SAVED: strategic_cancellation_analysis_summary.png")
+print("\nVISUALIZATION SAVED: strategic_cancellation_analysis_summary.png")
 
-print(f"\n🎉 SCRIPT EXECUTION COMPLETED SUCCESSFULLY!")
+print("\nSCRIPT EXECUTION COMPLETED SUCCESSFULLY!")
