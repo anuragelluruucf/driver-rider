@@ -126,7 +126,7 @@ for reason, difficulty in verification_difficulty.items():
         count = cancellation_reasons[reason]
         pct = count / len(cancelled_orders) * 100
         print(f"{reason:<35} | {difficulty}")
-        print(f"   ↳ {count:,} cases ({pct:.1f}%)")
+        print(f"   -> {count:,} cases ({pct:.1f}%)")
 
 # ============================================================================
 # SECTION 3: BIKE ISSUE CANCELLATIONS - THE STRATEGIC VECTOR
@@ -181,30 +181,30 @@ print("="*60)
 
 print("THEORETICAL FOUNDATION:")
 print("   1. Information Asymmetry (Akerlof 1970):")
-print("      → Riders know true bike condition, platform doesn't")
-print("      → Creates incentive for false claims when convenient")
+print("      - Riders know true bike condition, platform doesn't")
+print("      - Creates incentive for false claims when convenient")
 print()
 print("   2. Moral Hazard (Holmström 1979):")
-print("      → Hidden actions after order acceptance")
-print("      → Riders can create 'problems' post-pickup for strategic cancellation")
+print("      - Hidden actions after order acceptance")
+print("      - Riders can create 'problems' post-pickup for strategic cancellation")
 print()
 print("   3. Discrete Choice Theory (McFadden 1974):")
-print("      → Riders maximize utility when deciding whether to cancel")
-print("      → Weighs: effort required vs compensation/penalties")
+print("      - Riders maximize utility when deciding whether to cancel")
+print("      - Weighs: effort required vs compensation/penalties")
 print()
 print("   4. Platform Economics (Liu & Li 2023):")
-print("      → Two-sided market creates verification constraints")
-print("      → Platforms balance rider flexibility vs fraud prevention")
+print("      - Two-sided market creates verification constraints")
+print("      - Platforms balance rider flexibility vs fraud prevention")
 
 print("\nSTRATEGIC CANCELLATION SCENARIOS:")
 print("   - Long Distance Orders: High effort, low compensation")
-print("      → 'Bike issue' allows cancellation without penalty")
+print("      - 'Bike issue' allows cancellation without penalty")
 print("   - Traffic/Weather: Unexpected complications arise")
-print("      → Easier to claim bike problem than explain circumstances")
+print("      - Easier to claim bike problem than explain circumstances")
 print("   - Better Opportunities: Rider finds more profitable order")
-print("      → Strategic cancellation to pursue better option")
+print("      - Strategic cancellation to pursue better option")
 print("   - Time Pressure: Running late for personal commitments")
-print("      → Quick exit strategy without reputation damage")
+print("      - Quick exit strategy without reputation damage")
 
 # ============================================================================
 # SECTION 5: PREDICTIVE MODELING - CAN WE DETECT STRATEGIC BEHAVIOR?
@@ -247,9 +247,9 @@ rider_stats['risk_score'] = (rider_stats['cancel_rate'] * 2 +
 # Merge rider stats
 modeling_data = modeling_data.merge(rider_stats, left_on='rider_id', right_index=True, how='left')
 
-print(f"   ✓ Created features based on economic theory")
-print(f"   ✓ Distance, timing, experience, historical behavior")
-print(f"   ✓ Target: Post-pickup cancellation (strategic proxy)")
+print(f"   Created features based on economic theory")
+print(f"   Distance, timing, experience, historical behavior")
+print(f"   Target: Post-pickup cancellation (strategic proxy)")
 
 # Prepare features for modeling
 feature_cols = ['distance', 'is_long_distance', 'is_peak_hour', 'session_minutes',
@@ -304,11 +304,11 @@ for name, model in models.items():
     # Evaluate
     auc_score = roc_auc_score(y_test, y_pred_proba)
     
-    print(f"   ✓ AUC Score: {auc_score:.3f}")
+    print(f"   AUC Score: {auc_score:.3f}")
     
     # Cross-validation
     cv_scores = cross_val_score(model, X_train, y_train, cv=5, scoring='roc_auc')
-    print(f"   ✓ CV AUC: {cv_scores.mean():.3f} (±{cv_scores.std():.3f})")
+    print(f"   CV AUC: {cv_scores.mean():.3f} (±{cv_scores.std():.3f})")
     
     model_results[name] = {
         'model': model,
@@ -437,7 +437,7 @@ if len(early_period) > 100 and len(late_period) > 50:
     temporal_auc = roc_auc_score(y_late, temporal_pred)
     
     print(f"   Temporal AUC: {temporal_auc:.3f}")
-    print(f"   Model maintains performance across time ✓")
+    print(f"   Model maintains performance across time")
 
 # Business impact simulation
 print("\nBUSINESS IMPACT SIMULATION:")
@@ -461,10 +461,10 @@ print("SECTION 9: RESULT INTERPRETATION")
 print("="*60)
 
 print("MODEL CAPABILITIES:")
-print(f"   ✓ Identifies strategic bike issues with {model_results[best_model_name]['auc']:.1%} accuracy")
-print(f"   ✓ Works for new riders (Lucas Critique compliant)")
-print(f"   ✓ Based on economic theory (utility maximization)")
-print(f"   ✓ Robust across time periods")
+print(f"   Identifies strategic bike issues with {model_results[best_model_name]['auc']:.1%} accuracy")
+print(f"   Works for new riders (Lucas Critique compliant)")
+print(f"   Based on economic theory (utility maximization)")
+print(f"   Robust across time periods")
 
 print("\nKEY FINDINGS:")
 print(f"   • {bike_post_pickup_rate:.1%} of bike issues occur post-pickup (vs {other_post_pickup_rate:.1%} for others)")
@@ -494,10 +494,10 @@ print("SECTION 10: CONCLUSION")
 print("="*60)
 
 print("RESEARCH QUESTION ANSWERED:")
-print("   ✅ YES, we CAN predict driver-driven cancellations (bike issues)")
-print("   ✅ Model is Lucas Critique-proof (works for new riders)")
-print("   ✅ Based on economic theory (utility maximization)")
-print("   ✅ Achieves high accuracy in detection")
+print("   YES, we CAN predict driver-driven cancellations (bike issues)")
+print("   Model is Lucas Critique-proof (works for new riders)")
+print("   Based on economic theory (utility maximization)")
+print("   Achieves high accuracy in detection")
 
 print("\nSCIENTIFIC CONTRIBUTIONS:")
 print(f"   1. First economic model for platform strategic cancellations")

@@ -364,7 +364,7 @@ def create_robustness_plots(label_results, temporal_results, model_results):
     plt.savefig('figures/robustness_checks.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("\n✓ Generated figures/robustness_checks.png")
+    print("\nGenerated figures/robustness_checks.png")
 
 def generate_robustness_tables(label_results, temporal_results, model_results):
     """Generate LaTeX tables for robustness results"""
@@ -394,7 +394,7 @@ def generate_robustness_tables(label_results, temporal_results, model_results):
     with open('tables/table_label_sensitivity.tex', 'w') as f:
         f.write(label_table)
     
-    print("✓ Generated tables/table_label_sensitivity.tex")
+    print("Generated tables/table_label_sensitivity.tex")
     
     # Table 2: Temporal stability
     temporal_table = """
@@ -423,7 +423,7 @@ Std Dev & -- & -- & {temporal_results['auc'].std():.3f} \\\\
     with open('tables/table_temporal_stability.tex', 'w') as f:
         f.write(temporal_table)
     
-    print("✓ Generated tables/table_temporal_stability.tex")
+    print("Generated tables/table_temporal_stability.tex")
     
     # Table 3: Model specifications
     model_table = """
@@ -449,7 +449,7 @@ Std Dev & -- & -- & {temporal_results['auc'].std():.3f} \\\\
     with open('tables/table_model_specifications.tex', 'w') as f:
         f.write(model_table)
     
-    print("✓ Generated tables/table_model_specifications.tex")
+    print("Generated tables/table_model_specifications.tex")
 
 def main():
     """Main execution function"""

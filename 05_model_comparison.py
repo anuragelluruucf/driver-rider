@@ -174,7 +174,7 @@ def create_model_comparison_table(results):
     with open('tables/table_model_comparison.tex', 'w') as f:
         f.write(table)
     
-    print("\n✓ Generated tables/table_model_comparison.tex")
+    print("\nGenerated tables/table_model_comparison.tex")
 
 def plot_roc_curves(results):
     """Plot ROC curves for all models"""
@@ -201,7 +201,7 @@ def plot_roc_curves(results):
     plt.savefig('figures/roc_curves_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("✓ Generated figures/roc_curves_comparison.png")
+    print("Generated figures/roc_curves_comparison.png")
 
 def plot_precision_recall_curves(results):
     """Plot Precision-Recall curves for all models"""
@@ -226,7 +226,7 @@ def plot_precision_recall_curves(results):
     plt.savefig('figures/pr_curves_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("✓ Generated figures/pr_curves_comparison.png")
+    print("Generated figures/pr_curves_comparison.png")
 
 def create_confusion_matrices(results):
     """Create confusion matrix plots for top models"""
@@ -257,7 +257,7 @@ def create_confusion_matrices(results):
     plt.savefig('figures/confusion_matrices_top3.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("✓ Generated figures/confusion_matrices_top3.png")
+    print("Generated figures/confusion_matrices_top3.png")
 
 def generate_detailed_metrics_table(results, model_name='Random Forest'):
     """Generate detailed metrics table for the best model"""
@@ -302,7 +302,7 @@ Cross-Val AUC & {metrics['cv_mean']:.3f} $\\pm$ {metrics['cv_std']:.3f} \\\\
     with open('tables/table_detailed_metrics.tex', 'w') as f:
         f.write(table)
     
-    print(f"✓ Generated tables/table_detailed_metrics.tex")
+    print(f"Generated tables/table_detailed_metrics.tex")
 
 def analyze_feature_importance(results, X, feature_cols):
     """Analyze feature importance for tree-based models"""
@@ -342,7 +342,7 @@ def analyze_feature_importance(results, X, feature_cols):
     plt.savefig('figures/feature_importance_rf.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("✓ Generated figures/feature_importance_rf.png")
+    print("Generated figures/feature_importance_rf.png")
     
     # Generate LaTeX table
     importance_table = """
@@ -367,7 +367,7 @@ def analyze_feature_importance(results, X, feature_cols):
     with open('tables/table_feature_importance.tex', 'w') as f:
         f.write(importance_table)
     
-    print("✓ Generated tables/table_feature_importance.tex")
+    print("Generated tables/table_feature_importance.tex")
 
 def save_best_model(results, X, y, feature_cols):
     """Save the best model for deployment"""
@@ -394,11 +394,11 @@ def save_best_model(results, X, y, feature_cols):
     }
     
     joblib.dump(model_data, 'models/best_strategic_model.pkl')
-    print("✓ Saved models/best_strategic_model.pkl")
+    print("Saved models/best_strategic_model.pkl")
     
     # Also save as specific model type
     joblib.dump(model_data, f'models/{best_model_name.lower().replace(" ", "_")}_model.pkl')
-    print(f"✓ Saved models/{best_model_name.lower().replace(' ', '_')}_model.pkl")
+    print(f"Saved models/{best_model_name.lower().replace(' ', '_')}_model.pkl")
 
 def main():
     """Main execution function"""

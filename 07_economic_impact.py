@@ -278,7 +278,7 @@ def create_impact_visualization(impact_metrics, policy_results):
     plt.savefig('figures/economic_impact_analysis.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("\n✓ Generated figures/economic_impact_analysis.png")
+    print("\nGenerated figures/economic_impact_analysis.png")
 
 def generate_impact_tables(impact_metrics, policy_results):
     """Generate LaTeX tables for economic impact"""
@@ -312,7 +312,7 @@ Kilometers wasted per month & {impact_metrics['monthly_distance_cost']:.0f} \\\\
     with open('tables/table_economic_impact.tex', 'w') as f:
         f.write(impact_table)
     
-    print("✓ Generated tables/table_economic_impact.tex")
+    print("Generated tables/table_economic_impact.tex")
     
     # Table 2: Policy comparison
     policy_table = """
@@ -340,7 +340,7 @@ Kilometers wasted per month & {impact_metrics['monthly_distance_cost']:.0f} \\\\
     with open('tables/table_policy_comparison.tex', 'w') as f:
         f.write(policy_table)
     
-    print("✓ Generated tables/table_policy_comparison.tex")
+    print("Generated tables/table_policy_comparison.tex")
     
     # Table 3: Recommended intervention tiers
     tier_table = """
@@ -365,7 +365,7 @@ Kilometers wasted per month & {impact_metrics['monthly_distance_cost']:.0f} \\\\
     with open('tables/table_intervention_tiers.tex', 'w') as f:
         f.write(tier_table)
     
-    print("✓ Generated tables/table_intervention_tiers.tex")
+    print("Generated tables/table_intervention_tiers.tex")
 
 def analyze_rider_segments(df):
     """Analyze economic impact by rider segments"""

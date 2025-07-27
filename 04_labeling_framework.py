@@ -135,7 +135,7 @@ def create_venn_diagram(set_sizes):
     plt.savefig('figures/strategic_classification_venn.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("\n✓ Generated figures/strategic_classification_venn.png")
+    print("\nGenerated figures/strategic_classification_venn.png")
 
 def generate_labeling_logic_table():
     """Generate LaTeX table explaining labeling logic"""
@@ -164,7 +164,7 @@ def generate_labeling_logic_table():
     with open('tables/table_labeling_logic.tex', 'w') as f:
         f.write(logic_table)
     
-    print("✓ Generated tables/table_labeling_logic.tex")
+    print("Generated tables/table_labeling_logic.tex")
 
 def analyze_labeled_data(df):
     """Analyze the labeled dataset"""
@@ -238,7 +238,7 @@ def analyze_labeled_data(df):
     with open('tables/table_strategic_comparison.tex', 'w') as f:
         f.write(comparison_table)
     
-    print("\n✓ Generated tables/table_strategic_comparison.tex")
+    print("\nGenerated tables/table_strategic_comparison.tex")
 
 def create_validation_plots(df):
     """Create plots to validate labeling framework"""
@@ -293,24 +293,24 @@ def create_validation_plots(df):
     plt.savefig('figures/labeling_validation.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("✓ Generated figures/labeling_validation.png")
+    print("Generated figures/labeling_validation.png")
 
 def export_labeled_dataset(df):
     """Export the labeled dataset"""
     
     # Save full labeled dataset
     df.to_csv('data/labeled_orders.csv', index=False)
-    print("\n✓ Exported data/labeled_orders.csv")
+    print("\nExported data/labeled_orders.csv")
     
     # Save strategic orders only
     strategic_orders = df[df['strategic_order'] == 1]
     strategic_orders.to_csv('data/strategic_orders.csv', index=False)
-    print(f"✓ Exported data/strategic_orders.csv ({len(strategic_orders):,} orders)")
+    print(f"Exported data/strategic_orders.csv ({len(strategic_orders):,} orders)")
     
     # Save rider metrics
     rider_metrics = calculate_rider_metrics(df)
     rider_metrics.to_csv('data/rider_metrics.csv')
-    print(f"✓ Exported data/rider_metrics.csv ({len(rider_metrics):,} riders)")
+    print(f"Exported data/rider_metrics.csv ({len(rider_metrics):,} riders)")
 
 def main():
     """Main execution function"""

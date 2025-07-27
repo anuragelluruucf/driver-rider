@@ -153,9 +153,9 @@ Effect size & \\multicolumn{{2}}{{c}}{{{above_rate - below_rate:.1%} increase}} 
     with open('tables/table_h1_results.tex', 'w') as f:
         f.write(latex_table)
     
-    print("\n✓ H1 SUPPORTED: Significant threshold effect found")
-    print(f"✓ Generated tables/table_h1_results.tex")
-    print(f"✓ Generated figures/h1_threshold_test.png")
+    print("\nH1 SUPPORTED: Significant threshold effect found")
+    print(f"Generated tables/table_h1_results.tex")
+    print(f"Generated figures/h1_threshold_test.png")
     
     return p_value < 0.05, chi2, p_value
 
@@ -269,9 +269,9 @@ Statistical test & \\multicolumn{{2}}{{c}}{{$\\chi^2$ = {chi2:.2f}, p = {p_value
     with open('tables/table_h2_results.tex', 'w') as f:
         f.write(latex_table)
     
-    print("\n✓ H2 SUPPORTED: Significant peak hour concentration found")
-    print(f"✓ Generated tables/table_h2_results.tex")
-    print(f"✓ Generated figures/h2_peak_hour_test.png")
+    print("\nH2 SUPPORTED: Significant peak hour concentration found")
+    print(f"Generated tables/table_h2_results.tex")
+    print(f"Generated figures/h2_peak_hour_test.png")
     
     return p_value < 0.05, chi2, p_value
 
@@ -387,9 +387,9 @@ Statistical test & \\multicolumn{{2}}{{c}}{{Permutation p = {p_value:.4f}}} \\\\
     with open('tables/table_h3_results.tex', 'w') as f:
         f.write(latex_table)
     
-    print("\n✓ H3 SUPPORTED: Significant distance effect found")
-    print(f"✓ Generated tables/table_h3_results.tex")
-    print(f"✓ Generated figures/h3_distance_effect_test.png")
+    print("\nH3 SUPPORTED: Significant distance effect found")
+    print(f"Generated tables/table_h3_results.tex")
+    print(f"Generated figures/h3_distance_effect_test.png")
     
     return p_value < 0.05, coef_distance, p_value
 
@@ -493,9 +493,9 @@ Effect size & \\multicolumn{{4}}{{c}}{{Cohen's d = {cohens_d:.3f} (medium effect
     with open('tables/table_h4_results.tex', 'w') as f:
         f.write(latex_table)
     
-    print("\n✓ H4 SUPPORTED: Strategic cancellations occur significantly later")
-    print(f"✓ Generated tables/table_h4_results.tex")
-    print(f"✓ Generated figures/h4_timing_test.png")
+    print("\nH4 SUPPORTED: Strategic cancellations occur significantly later")
+    print(f"Generated tables/table_h4_results.tex")
+    print(f"Generated figures/h4_timing_test.png")
     
     return p_value < 0.05, cohens_d, p_value
 
@@ -624,9 +624,9 @@ Statistical test & \\multicolumn{{3}}{{c}}{{$\\chi^2$ = {chi2:.2f}, p = {p_value
         f.write(latex_table)
     
     result = "SUPPORTED" if p_value < 0.05 else "NOT SUPPORTED"
-    print(f"\n✓ H5 {result}: Experience difference {'is' if p_value < 0.05 else 'is not'} significant")
-    print(f"✓ Generated tables/table_h5_results.tex")
-    print(f"✓ Generated figures/h5_experience_test.png")
+    print(f"\nH5 {result}: Experience difference {'is' if p_value < 0.05 else 'is not'} significant")
+    print(f"Generated tables/table_h5_results.tex")
+    print(f"Generated figures/h5_experience_test.png")
     
     return p_value < 0.05, chi2, p_value
 
@@ -673,7 +673,7 @@ def generate_summary_table(results):
     with open('tables/table_hypothesis_summary.tex', 'w') as f:
         f.write(summary_table)
     
-    print("\n✓ Generated tables/table_hypothesis_summary.tex")
+    print("\nGenerated tables/table_hypothesis_summary.tex")
 
 def main():
     """Main execution function"""

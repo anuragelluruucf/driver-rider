@@ -239,7 +239,7 @@ def plot_cold_start_performance(models, X_test, y_test):
     plt.savefig('figures/cold_start_analysis.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("\n✓ Generated figures/cold_start_analysis.png")
+    print("\nGenerated figures/cold_start_analysis.png")
 
 def generate_cold_start_tables(models, X_test, y_test):
     """Generate LaTeX tables for cold-start analysis"""
@@ -283,7 +283,7 @@ def generate_cold_start_tables(models, X_test, y_test):
     with open('tables/table_cold_start_performance.tex', 'w') as f:
         f.write(perf_table)
     
-    print("✓ Generated tables/table_cold_start_performance.tex")
+    print("Generated tables/table_cold_start_performance.tex")
     
     # Risk categorization table
     rf_scores = models['rf']['y_proba']
@@ -324,7 +324,7 @@ def generate_cold_start_tables(models, X_test, y_test):
     with open('tables/table_cold_start_risk_categories.tex', 'w') as f:
         f.write(risk_table)
     
-    print("✓ Generated tables/table_cold_start_risk_categories.tex")
+    print("Generated tables/table_cold_start_risk_categories.tex")
 
 def create_example_predictions(cold_start_clean, models, feature_cols):
     """Create example predictions for documentation"""
@@ -387,7 +387,7 @@ def create_example_predictions(cold_start_clean, models, feature_cols):
     with open('tables/table_cold_start_examples.tex', 'w') as f:
         f.write(example_table)
     
-    print("✓ Generated tables/table_cold_start_examples.tex")
+    print("Generated tables/table_cold_start_examples.tex")
 
 def save_cold_start_model(models, feature_cols):
     """Save cold-start model for deployment"""
@@ -401,7 +401,7 @@ def save_cold_start_model(models, feature_cols):
     }
     
     joblib.dump(model_data, 'models/cold_start_model.pkl')
-    print("\n✓ Saved models/cold_start_model.pkl")
+    print("\nSaved models/cold_start_model.pkl")
 
 def main():
     """Main execution function"""

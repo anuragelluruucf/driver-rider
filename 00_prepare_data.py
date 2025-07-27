@@ -131,7 +131,7 @@ def main():
     # Save prepared data
     output_file = 'train_prepared.csv'
     df_prepared.to_csv(output_file, index=False)
-    print(f"\n✓ Saved prepared data to {output_file}")
+    print(f"\nSaved prepared data to {output_file}")
     
     # Show final columns
     print("\nFinal columns:")

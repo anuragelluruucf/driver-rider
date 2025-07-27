@@ -419,7 +419,7 @@ def create_sample_bibliography():
     with open('references.bib', 'w') as f:
         f.write(bibliography)
     
-    print("✓ Created references.bib")
+    print("Created references.bib")
 
 def main():
     """Generate complete LaTeX document"""
@@ -446,7 +446,7 @@ def main():
     with open(filename, 'w') as f:
         f.write(latex_content)
     
-    print(f"\n✓ Generated {filename}")
+    print(f"\nGenerated {filename}")
     
     # Create bibliography
     create_sample_bibliography()
@@ -468,7 +468,7 @@ echo "Done! Output: strategic_cancellations_paper.pdf"
         f.write(compile_script)
     
     os.chmod('compile_paper.sh', 0o755)
-    print("✓ Created compile_paper.sh")
+    print("Created compile_paper.sh")
     
     print("\n" + "="*80)
     print("LATEX DOCUMENT READY")

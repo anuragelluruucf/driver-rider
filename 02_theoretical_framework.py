@@ -66,7 +66,7 @@ where $V_{it}^{C,S}$ represents the deterministic components of utility. \\
     with open('tables/table_utility_model.tex', 'w') as f:
         f.write(utility_model)
     
-    print("✓ Generated tables/table_utility_model.tex")
+    print("Generated tables/table_utility_model.tex")
     
     return utility_model
 
@@ -106,7 +106,7 @@ def generate_testable_hypotheses():
     with open('tables/table_hypotheses.tex', 'w') as f:
         f.write(hypotheses)
     
-    print("✓ Generated tables/table_hypotheses.tex")
+    print("Generated tables/table_hypotheses.tex")
     
     return hypotheses
 
@@ -185,7 +185,7 @@ def simulate_utility_model():
     plt.savefig('figures/utility_model_simulation.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("\n✓ Generated figures/utility_model_simulation.png")
+    print("\nGenerated figures/utility_model_simulation.png")
     
     return strategic, distance, peak_hour, session_time
 
@@ -220,7 +220,7 @@ def generate_model_assumptions():
     with open('tables/table_assumptions.tex', 'w') as f:
         f.write(assumptions)
     
-    print("✓ Generated tables/table_assumptions.tex")
+    print("Generated tables/table_assumptions.tex")
     
     return assumptions
 
@@ -289,7 +289,7 @@ Peak Hour & {params[2]:.4f} & 0.087 \\\\
             with open('tables/table_structural_params.tex', 'w') as f:
                 f.write(param_table)
             
-            print("\n✓ Generated tables/table_structural_params.tex")
+            print("\nGenerated tables/table_structural_params.tex")
     
     else:
         print("Warning: No strategic riders found for structural estimation")

@@ -109,7 +109,7 @@ def generate_variable_summary_table(df):
     with open('tables/table_variables.tex', 'w') as f:
         f.write(latex_table)
     
-    print("\n✓ Generated tables/table_variables.tex")
+    print("\nGenerated tables/table_variables.tex")
     
     return latex_table
 
@@ -166,7 +166,7 @@ def generate_summary_statistics_table(df):
     with open('tables/table_summary_stats.tex', 'w') as f:
         f.write(latex_table)
     
-    print("✓ Generated tables/table_summary_stats.tex")
+    print("Generated tables/table_summary_stats.tex")
     
     return latex_table
 
@@ -219,7 +219,7 @@ def analyze_missing_data(df):
         with open('tables/table_missing_data.tex', 'w') as f:
             f.write(latex_table)
         
-        print("\n✓ Generated tables/table_missing_data.tex")
+        print("\nGenerated tables/table_missing_data.tex")
 
 def create_exploration_plots(df):
     """Create exploration plots"""
@@ -254,7 +254,7 @@ def create_exploration_plots(df):
     plt.savefig('figures/data_exploration.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("✓ Generated figures/data_exploration.png")
+    print("Generated figures/data_exploration.png")
 
 def export_sample_data(df):
     """Export sample data for documentation"""
@@ -264,12 +264,12 @@ def export_sample_data(df):
     
     # Save as CSV
     sample_df.to_csv('data/sample_data.csv', index=False)
-    print("\n✓ Exported data/sample_data.csv")
+    print("\nExported data/sample_data.csv")
     
     # Create summary statistics CSV
     summary_stats = df.describe()
     summary_stats.to_csv('data/summary_statistics.csv')
-    print("✓ Exported data/summary_statistics.csv")
+    print("Exported data/summary_statistics.csv")
 
 def main():
     """Main execution function"""
