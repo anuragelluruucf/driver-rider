@@ -1,0 +1,14 @@
+\contentsline {table}{\numberline {1}{\ignorespaces Threshold Sensitivity Optimization (F1-Score Maximization)}}{7}{table.caption.5}%
+\contentsline {table}{\numberline {2}{\ignorespaces Comprehensive Hypothesis Testing Results}}{21}{table.caption.11}%
+\contentsline {table}{\numberline {3}{\ignorespaces Full Model Performance Metrics: AUC-ROC of 0.723 indicates good discrimination despite severe class imbalance}}{22}{table.caption.12}%
+\contentsline {table}{\numberline {4}{\ignorespaces Balanced Model Performance: Trading recall for precision improves operational viability}}{23}{table.caption.13}%
+\contentsline {table}{\numberline {5}{\ignorespaces Confusion Matrix for Full Model: High false positive rate reflects base rate challenge}}{25}{table.caption.15}%
+\contentsline {table}{\numberline {6}{\ignorespaces Cold-Start Model Performance: High precision protects new riders from false flags}}{28}{table.caption.17}%
+\contentsline {table}{\numberline {7}{\ignorespaces Risk-Based Intervention Policies: Graduated response minimizes false positive harm}}{31}{table.caption.19}%
+\contentsline {table}{\numberline {8}{\ignorespaces Label Sensitivity Results: Model AUC and recall by threshold configuration}}{34}{table.caption.21}%
+\contentsline {table}{\numberline {9}{\ignorespaces Raw Variable Definitions}}{41}{table.caption.22}%
+\contentsline {table}{\numberline {10}{\ignorespaces Engineered Feature Definitions}}{42}{table.caption.23}%
+\contentsline {table}{\numberline {11}{\ignorespaces Descriptive Statistics for Key Variables}}{42}{table.caption.24}%
+\contentsline {table}{\numberline {12}{\ignorespaces Label Sensitivity Test Results}}{43}{table.caption.25}%
+\contentsline {table}{\numberline {13}{\ignorespaces Cold-Start Rider Flagged Examples}}{43}{table.caption.26}%
+\contentsline {table}{\numberline {14}{\ignorespaces Full Confusion Matrix for Balanced Model}}{43}{table.caption.27}%

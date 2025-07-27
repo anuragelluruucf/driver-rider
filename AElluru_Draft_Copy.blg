@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2025)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: AElluru_Draft_Copy.aux
+The style file: chicago.bst
+Database file #1: references.bib
+Warning--no number and no volume in liu2023strategic
+Warning--page numbers missing in liu2023strategic
+You've used 17 entries,
+            2861 wiz_defined-function locations,
+            724 strings with 7580 characters,
+and the built_in function-call counts, 12619 in all, are:
+= -- 1088
+> -- 922
+< -- 3
++ -- 287
+- -- 323
+* -- 1145
+:= -- 2271
+add.period$ -- 53
+call.type$ -- 17
+change.case$ -- 126
+chr.to.int$ -- 17
+cite$ -- 19
+duplicate$ -- 327
+empty$ -- 748
+format.name$ -- 371
+if$ -- 2345
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 16
+newline$ -- 89
+num.names$ -- 172
+pop$ -- 81
+preamble$ -- 1
+purify$ -- 228
+quote$ -- 0
+skip$ -- 355
+stack$ -- 0
+substring$ -- 740
+swap$ -- 116
+text.length$ -- 3
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 340
+warning$ -- 2
+while$ -- 183
+width$ -- 0
+write$ -- 230
+(There were 2 warnings)

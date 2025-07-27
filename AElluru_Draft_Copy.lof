@@ -1,0 +1,9 @@
+\contentsline {figure}{\numberline {1}{\ignorespaces Threshold Logic for Strategic Rider Classification: All three criteria must be met}}{11}{figure.caption.6}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Strategic probability curve by number of past incidents (H1 test): Sharp jump from 8.3 percent to 31.7 percent at $k = 2$ incidents}}{17}{figure.caption.7}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Strategic cancellation concentration by hour of day (H2 test): Clear peaks during lunch (12--14) and dinner (18--21) hours}}{18}{figure.caption.8}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Distance effect on cancellation odds from logistic regression (H3 test): Each additional kilometer increases strategic cancellation odds by 3.4 percent}}{19}{figure.caption.9}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Histogram comparison of time-to-cancel (H4 test): Distributions largely overlap, indicating timing is an unreliable signal}}{20}{figure.caption.10}%
+\contentsline {figure}{\numberline {6}{\ignorespaces SHAP feature importances for full model: Session time and hour dominate predictions, validating economic theory. Color legend: Red = high feature value increases prediction; Blue = low feature value decreases prediction.}}{24}{figure.caption.14}%
+\contentsline {figure}{\numberline {7}{\ignorespaces ROC curve comparison across models: Both models achieve AUC $\geq $ 0.7 despite class imbalance}}{26}{figure.caption.16}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Cold-start rider examples and risk scores: High-risk riders show long distances and peak-hour timing}}{29}{figure.caption.18}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Simulated policy impact by intervention tier: Moderate interventions achieve 40 percent reduction in strategic cancellations}}{32}{figure.caption.20}%

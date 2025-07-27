@@ -1,0 +1,1244 @@
+\documentclass[12pt,letterpaper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{appendix}
+\usepackage{lipsum}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+
+% Formatting
+\doublespacing
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
+
+% Title formatting
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Table of contents formatting
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}}
+
+% Custom commands
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+
+\begin{document}
+
+% Title Page
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    {\huge\bfseries Modeling and Reducing Driver-Driven Cancellations in Food Delivery Platforms\par}
+    \vspace{2cm}
+    {\Large Anurag Elluru\par}
+    \vspace{1cm}
+    {\large Master of Science in Business Analytics\par}
+    {\large University of Central Florida\par}
+    \vspace{2cm}
+    {\large ECO 6936: Capstone in Business Analytics II\par}
+    \vspace{1cm}
+    {\large July 27, 2025\par}
+\end{titlepage}
+
+
+% Main Content
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Introduction}
+
+Food delivery platforms (like Swiggy, DoorDash, and UberEats) operate in highly dynamic environments, managing thousands of on-ground delivery partners and millions of real-time orders daily. While the model benefits from decentralization and scalability, it also creates vulnerabilities inherent to this business--particularly those rooted in information asymmetry, where platforms cannot fully verify or observe the private conditions or choices of drivers.
+
+One persistent challenge is the post-acceptance, pre-delivery cancellation. Drivers accept an order, reach the restaurant, and then report a bike issue or another unverifiable excuse, requesting that the order be canceled. These incidents are logged as operational disruptions and often resolved without a clear way to verify intent. While some are genuine mechanical failures, others are strategic exits--for instance, when cancellations involve long delays or unprofitable tasks.
+
+In this paper, I tackle that gray area by asking: Can strategic cancellations be reliably detected in real time without violating fairness? And how can we measure their platform-wide cost when monetary loss is unrecorded?
+
+\section{Motivation and Operational Background}
+
+My motivation for this research is not abstract. As a former driver-support specialist, I handled hundreds of such tickets. Despite scripted questions and photo requests, the final decision often relied on intuition. Backend audits sometimes penalized riders later, but by then, the damage--refunds, cold meals, and delayed queues--had already been done. This experiential gap motivates a predictive, theory-driven approach.
+
+Platforms often walk a tightrope. Canceling a ticket too quickly risks enabling fraud, while waiting too long delays every other open ticket in the queue. Rider history is not always helpful--especially in the case of new drivers--and customer experience managers are left guessing. Platforms lose time, incur support cost overheads, and frustrate customers, all without a scalable system to pre-empt such behavior.
+
+My research builds a bridge between operational experience and academic modeling--linking the lived ambiguity of platform decision-making with formal economic theory and statistical modeling. I leverage microeconomic frameworks and machine learning (ML) methods to reconstruct what platforms should have seen coming.
+
+\section{Literature Review}
+
+In this section, I curate the core economic and empirical literatures underpinning my investigation into strategic cancellations on gig delivery platforms. I focus on how each strand of literature not only explains platform behavior but also informs my modeling choices, feature engineering, and policy implications in later sections.
+
+\subsection{Information Asymmetry and Adverse Selection}
+
+The foundational idea of information asymmetry traces back to \citet{akerlof1970lemons} seminal work, \textit{The Market for Lemons}, which shows how unobservable quality can lead to market unraveling. In this context, the rider's true bike condition (genuine breakdown versus opportunistic excuse) is unobservable to the platform at the moment of cancellation. This induces adverse selection, where strategic actors masquerade as genuine, and the platform must tolerate some fraud to maintain supply.
+
+\citet{dranove2010quality} extended this idea to modern service markets, identifying that adverse selection becomes more damaging when verification is costly and quality is observable only after commitment. These insights justify my reliance on proxy variables in model construction--since the platform cannot directly observe rider intent, I infer it from behavior patterns like distance sensitivity and cancellation timing.
+
+This literature also motivates my cold-start strategy (Section 10), where I must make predictions in the absence of history--akin to markets where no reputation exists yet.
+
+\subsection{Moral Hazard in Gig Work}
+
+\citet{holmstrom1979moral} formalized moral hazard as a situation where agents take hidden actions after contracting, due to imperfect monitoring. In my platform context, this is mirrored by drivers strategically canceling after accepting an order. \citet{holmstrom1991multitask} later showed that in multitask environments, incentivizing one observable metric (like acceptance rate) can distort effort on unobservables (like honesty in cancellations). This guides my emphasis on multi-dimensional rider modeling--going beyond mere acceptance or completion metrics.
+
+\citet{baker1992incentive} showed that gaming arises when performance metrics are imperfect proxies for true effort--laying the theoretical foundation for my detection framework, which corrects for these proxy distortions using machine learning and clustering.
+
+I directly operationalize these concepts by analyzing cancellation patterns, behavioral thresholds, and session dynamics--all rooted in the moral hazard tradition.
+
+\subsection{Behavioral Economics and Strategic Choice}
+
+\citet{mcfadden1974conditional} introduced the conditional logit model for discrete choice under utility maximization. I draw on this in my structural interpretation of rider behavior (Section 4), where the rider chooses between completing and strategically canceling based on distance, session fatigue, and opportunity cost.
+
+\citet{jovanovic1982selection} proposed models of learning and type revelation over time, which motivates my analysis of behavioral thresholds--particularly the sharp increase in strategic probability after two prior bike issue claims (Section 8).
+
+\citet{cabral2010dynamics} studied reputation mechanisms in digital markets and found that consistent behavior over time creates self-selection. This inspired my use of rider-level consistency checks in the revised detection framework (Section 7).
+
+\subsection{ML in Economics}
+
+\citet{athey2019ml} advocated for combining predictive models with structural economic reasoning--a principle I apply through SHAP \citep{lundberg2017unified} value interpretation, model auditing, and a multi-stage risk scoring pipeline (a systematic approach to evaluating riders at different decision points).
+
+\citet{mullainathan2017ml} similarly emphasized machine learning's strength in handling non-linearity and high-dimensional data, which justifies my use of Random Forests for both strategic detection and cold-start prediction. The complex interactions between distance, timing, session fatigue, and rider history create precisely the type of high-dimensional feature space where traditional econometric methods struggle, but machine learning approaches excel.
+
+My approach treats machine learning as a sophisticated pattern recognition tool that complements, rather than replaces, economic theory. I use SHAP values and economic interpretation to ensure my predictions align with theoretical expectations, while acknowledging that correlation, however strong, does not imply causation.
+
+This methodological humility shapes my policy recommendations: I propose interventions based on predictive accuracy rather than causal certainty, and emphasize the need for careful A/B testing before full deployment.
+
+\subsection{Empirical Studies on Gig Platforms}
+
+\citet{hall2019pricing} and \citet{cook2021gig} showed how gig workers strategically adjust their behavior across time of day, distance, and expected payouts--insights that guide my inclusion of hour, session time, and trip distance as core features. \citet{liu2023strategic} emphasized the importance of flagging unverifiable behavior early but cautioned that overly punitive mechanisms risk labor supply. This tension informs my graduated intervention policy (Section 11).
+
+\citet{cachon2017surge} and \citet{besbes2021surge} explored how surge pricing and task complexity affect agent participation, mirroring how I interpret peak hour cancellation risk as driven by rider-side outside options.
+
+\citet{zhang2023dispatch} empirically tested platform interventions and found that nudges and transparent scoring outperform penalties--this evidence shapes my fairness-aware strategy for filtering high-risk new riders.
+
+\section{Theoretical Framework}
+
+To model rider decisions under uncertainty and unverifiability, I adopt a structural microeconomic framework grounded in moral hazard theory, discrete choice under utility maximization, and strategic signaling. My goal is to formalize the tradeoffs a rational agent faces when choosing whether to complete or cancel an assigned order using unverifiable reasons (for example, bike issue).
+
+\subsection{Model Setup}
+
+Let each rider be indexed by $i$ and each delivery order by $j$. The platform matches a rider to an order at time $t$, where:
+\begin{enumerate}
+    \item $d_{ij}$: total distance of the order;
+    \item $\tau_{ij}$: cumulative time spent so far (session fatigue);
+    \item $\theta_i \in \{\text{Strategic}, \text{Honest}\}$: latent rider type;
+    \item $v_{it}$: outside option utility, for example, alternative platforms or idle time.
+\end{enumerate}
+
+The platform observes order-level features $X_{ij} \in \mathbb{R}^k$ (distances, timing), partial rider history $H_i$, and behavioral flags $F_{it}$, but not $\theta_i$ or $v_{it}$.
+
+Riders choose an action $a \in \{0, 1\}$:
+\begin{enumerate}
+    \item $a = 0$: complete delivery;
+    \item $a = 1$: request cancellation due to unverifiable issue.
+\end{enumerate}
+
+\subsection{Utility Specification}
+
+\begin{align}
+U_i(0) &= -c(d_{ij}) - \tau_{ij} + \varepsilon^0_{ij} \tag{1}\\
+U_i(1) &= -\psi_i + v_{it} + \varepsilon^1_{ij}, \tag{2}
+\end{align}
+
+Where:
+\begin{enumerate}
+    \item $c(d_{ij}) = \alpha_0 + \alpha_1 d_{ij} + \alpha_2 d_{ij}^2$: convex distance cost;
+    \item $\tau_{ij}$: time-based disutility;
+    \item $\psi_i = \psi_0 \cdot \mathbb{1}[\theta_i = \text{Honest}]$: lying cost (zero for strategic types);
+    \item $v_{it} = \beta_0 + \beta_1 \cdot \text{PeakHour}_{it}$: outside opportunity, higher in peak;
+    \item $\varepsilon_{ij}$: idiosyncratic shocks.
+\end{enumerate}
+
+The rider cancels when $U_i(1) > U_i(0)$. Since $\psi_i$ and $v_{it}$ are unobservable, I detect intent via observable correlates.
+
+\subsection{Proxy Labeling Strategy}
+
+Since $\theta_i$ is unobserved, I use a proxy classification logic based on the following behavioral thresholds:
+\begin{enumerate}
+    \item Bike issues count $\geq 2$: repetition of unverifiable excuse;
+    \item Post-pickup rate $> 70$ percent: cancels after food is collected;
+    \item Bike issue rate $> 20$ percent: proportion of cancellations using this excuse.
+\end{enumerate}
+
+These thresholds identify riders with high probability of strategic behavior, forming the core of my empirical label set (Section 7).
+
+\subsubsection{Threshold Optimization}
+
+I validated these thresholds through systematic F1-score maximization:
+
+\begin{table}[H]
+\centering
+\caption{Threshold Sensitivity Optimization (F1-Score Maximization)}
+\label{tab:threshold_opt}
+\begin{tabular}{cccc}
+\toprule
+Bike Issue Count & Post-Pickup Percent & Excuse Rate Percent & F1 Score \\
+\midrule
+2 & 70 & 20 & 0.049 \\
+3 & 80 & 30 & 0.043 \\
+1 & 50 & 10 & 0.041 \\
+2 & 60 & 15 & 0.046 \\
+3 & 70 & 25 & 0.047 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The optimal configuration (2, 70 percent, 20 percent) balances precision and recall, as shown in Table \ref{tab:threshold_opt}.
+
+\subsection{Testable Hypotheses}
+
+My framework generates the following testable predictions:
+
+\begin{enumerate}
+    \item \textbf{H1: Behavioral Repetition Matters}--riders with $\geq 2$ unverifiable cancellations have a significantly higher probability of repeating strategic behavior;
+    \item \textbf{H2: Peak Hour Sensitivity}--strategic cancels increase during high-demand periods due to rising $v_{it}$;
+    \item \textbf{H3: Cost-Sensitivity to Distance}--longer delivery distance increases strategic cancellations due to $c(d_{ij})$;
+    \item \textbf{H4: Post-Pickup Timing Is Not a Reliable Signal}--contrary to prior assumptions, speed of cancellation is not predictive of strategic intent;
+    \item \textbf{H5: Cold-Start Risk Can Be Predicted}--even without history, order-level and temporal features can predict strategic tendencies among new riders.
+\end{enumerate}
+
+These hypotheses are tested using regression, classification, threshold analysis, and economic simulation across Sections 8-11.
+
+\section{Data Description}
+
+My analysis is based on a proprietary administrative dataset from a leading food delivery platform in India, covering 447,187 orders. Each record represents a unique rider-order interaction, with associated timestamps, distance metrics, rider historical indicators, and cancellation outcomes. The dataset spans a wide operational period and captures the lifecycle of order fulfillment from assignment to delivery or cancellation.
+
+\subsection{Key Features}
+
+The dataset includes 21 variables, which can be grouped into the following categories:
+\begin{enumerate}
+    \item \textbf{Timestamps:} order time, order date, allot time, accept time, pickup time, delivered time, cancelled time;
+    \item \textbf{Distance and Task Complexity:} first mile distance, last mile distance, total distance, is long distance;
+    \item \textbf{Rider-Level History:} rider ID, allotted orders, delivered orders, lifetime order count, session time;
+    \item \textbf{Cancellation Flags:} cancelled, cancel after pickup, reason text, to remove.
+\end{enumerate}
+
+From these, I derive behavioral and proxy variables, including time-to-accept, time-to-pickup, and strategic flag indicators.
+
+\subsection{Data Quality and Missingness}
+
+The dataset has moderate missingness in timestamp fields:
+\begin{enumerate}
+    \item Cancelled time and reason text: 96 percent missing (as expected for non-cancelled orders);
+    \item Pickup time, delivered time, accept time: 1--2 percent missing;
+    \item Session time, lifetime order count: less than 1 percent missing.
+\end{enumerate}
+
+These gaps are handled via filtering or imputation depending on the modeling need. For example, my cancellation-time calculations and session-based features only use rows with valid pickup time and cancelled time.
+
+\subsection{Label Distribution}
+\begin{enumerate}
+    \item Total cancellations: 15,430 (approximately 3.45 percent);
+    \item Bike issue cancellations (via reason text): 2,406 (15.6 percent of cancellations); and
+    \item Post-pickup bike issues: 2,118 (approximately 88 percent of bike issues).
+\end{enumerate}
+
+\subsection{Summary Statistics}
+
+Key operational metrics from our dataset:
+\begin{enumerate}
+    \item Median delivery time: 28.3 minutes (from acceptance to delivery);
+    \item Average order distance: 5.7 km (total distance);
+    \item Peak hour concentration: 38.2 percent of all orders; and
+    \item Rider retention: 19,911 unique riders with a median of 22 orders per rider.
+\end{enumerate}
+
+This distribution informs the proxy labeling strategy used later in Section 7. It also motivates the need for predictive methods that can handle severe class imbalance. Full descriptive statistics are provided in Appendix Table A.3.
+
+\section{Methodology}
+
+In this section, I describe the full modeling pipeline--from proxy label construction and feature engineering to predictive model design and interpretability methods. The methodology is explicitly shaped by the theoretical and empirical gaps surfaced in Sections 3 and 4, and aims to translate the economic decision model into a tractable, ethical, and operationally deployable detection mechanism.
+
+\subsection{Problem Formulation}
+
+I aim to identify and predict strategic cancellations, where a rider claims unverifiable bike issues as a means to abandon an assigned task. This presents a latent behavioral classification problem:
+
+\begin{enumerate}
+    \item \textbf{Detection (longitudinal):} Flag riders who persistently exhibit behavior matching strategic patterns;
+    \item \textbf{Prediction (real-time):} Estimate the probability that a given order will be cancelled strategically, using only observable features at or near task allocation.
+\end{enumerate}
+
+The cold-start rider problem--a key operational concern--is addressed separately in Section 10 using a structurally constrained, history-free version of the prediction model.
+
+\subsection{Labeling Strategy: Behavioral Proxy Classification}
+
+In the absence of direct intent ground truth, I construct proxy labels based on repeat patterns that violate platform norms. Drawing from Holmström and Milgrom's multitasking model (1991) and Jovanovic's threshold signaling (1982), I define a rider as strategic if they:
+
+\begin{enumerate}
+    \item Have $>2$ bike issue cancellations, to rule out one-off mechanical failures
+    \item Cancel $>70\%$ of their orders post-pickup, where verification is impossible
+    \item Cite bike issues in $>20\%$ of all their cancellations, suggesting strategic excuse clustering
+\end{enumerate}
+
+These heuristics identify riders with high probability of strategic behavior, defining the target for our detection model (Section 9).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{venn_strategic_classification.png}
+\caption{Threshold Logic for Strategic Rider Classification: All three criteria must be met}
+\label{fig:venn}
+\end{figure}
+
+\subsection{Feature Engineering}
+
+My feature engineering pipeline mirrors the economic structure of the rider's decision problem (Section 4.2), converting raw platform logs into interpretable economic proxies:
+
+\begin{enumerate}
+    \item \textbf{Cost of delivery:} total distance, first mile distance, last mile distance $\rightarrow$ proxies $c(d_{ij})$;
+    \item \textbf{Fatigue or sunk time:} session time, time to pickup $\rightarrow$ proxies $\tau_{it}$;
+    \item \textbf{Outside options:} is peak hour, hour $\rightarrow$ proxies $v_{it}$;
+    \item \textbf{Signaling behavior:} bike issue rate, cancel after pickup ratio $\rightarrow$ proxies $\theta_i$.
+\end{enumerate}
+
+Interaction terms (for example, Distance $\times$ Peak Hour) are included to test non-linear cross-effects predicted by my utility model.
+
+Notably, for cold-start riders, I exclude all historical variables (lifetime order count, bike issue rate) and rely exclusively on contextual and temporal information--consistent with \citeauthor{akerlof1970lemons}'s theory of uninformed platforms in adverse selection scenarios.
+
+\subsection{Model Architecture and Tuning}
+
+To implement my detection and prediction tasks, I employed Random Forest classifiers. This modeling choice is supported by Mullainathan and Spiess (2017), who highlight its ability to capture non-linear feature interactions without overfitting in moderately sized datasets.
+
+I tuned the following key hyperparameters using grid search and cross-validation:
+
+\begin{itemize}
+    \item \textbf{n\_estimators: 50--100 trees.}  
+    A higher number of trees increases model stability but adds computation cost. I found that beyond 100 trees, gains in predictive performance were negligible, while training time increased substantially.
+
+    \item \textbf{max\_depth: 6--10 levels.}  
+    I restricted tree depth to prevent overfitting on rare strategic cancellation patterns. Deeper trees tended to memorize outliers and inflate precision at the cost of generalization.
+
+    \item \textbf{class\_weight: "balanced".}  
+    This setting adjusts for the severe class imbalance in my data (strategic cancellations comprise only 1.3 percent of orders). Without this correction, the model would ignore the minority class and achieve deceptively high accuracy.
+
+    \item \textbf{cross-validation: 3--5 folds.}  
+    To ensure temporal generalizability, I split the training data across different order periods (e.g., early, mid, and late weeks). This mimics deployment by preventing pattern leakage from future orders. AUC-ROC was used as the primary scoring metric to reflect performance under imbalance.
+\end{itemize}
+
+For model comparability, all training sets are temporally split (training on early orders, testing on later), to avoid leakage of rider patterns and ensure deployment realism.
+
+\subsection{Evaluation Metrics}
+
+Given the real-world deployment stakes (platform policy, rider penalties), I use:
+
+\begin{enumerate}
+    \item \textbf{AUC-ROC:} Ranking quality across class imbalance;
+    \item \textbf{AUC-PR:} Area Under the Precision-Recall curve, more informative for rare events;
+    \item \textbf{Precision, Recall, F1:} Reflect cost tradeoffs between false positives and false negatives;
+    \item \textbf{Confusion Matrix:} For case-by-case audit, especially on cold-start predictions.
+\end{enumerate}
+
+Fairness checks include:
+\begin{enumerate}
+    \item Precision by rider tenure (to guard against penalizing new joiners);
+    \item False positive rate by hour (to detect peak-time bias);
+    \item Review of false positives via SHAP interpretation (Section 9.3).
+\end{enumerate}
+
+\subsection{Interpretability and Policy Feedback Loop}
+
+To meet ethical and operational constraints, I augment my ``black-box'' model with SHAP value analysis (Lundberg and Lee, 2017). SHAP values provide a unified measure of feature importance based on game theory:
+
+\begin{equation}
+\phi_i = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|!(|F| - |S| - 1)!}{|F|!} [f_S(x_S \cup \{x_i\}) - f_S(x_S)],
+\end{equation}
+
+where $\phi_i$ is the SHAP value for feature $i$, $F$ is the set of all features, $S$ is a subset of features, and $f$ is the model prediction function.
+
+This connects each prediction back to the economic proxies:
+
+\begin{enumerate}
+    \item High SHAP for session time and total distance validates fatigue/effort logic;
+    \item High SHAP for is peak hour validates opportunity cost logic;
+    \item Low SHAP for time to cancel undermines prior assumptions that ``fast cancel = strategic''.
+\end{enumerate}
+
+These insights are used in Section 11 to design graduated intervention policies and in Section 13 to audit robustness and stakeholder fairness.
+
+\section{Strategic Detection Framework}
+
+In this section, I describe my primary framework for identifying strategic cancellation behavior. Guided by microeconomic theory and real platform data, I define a high-confidence classification approach based on behavioral repetition, unverifiability, and excuse clustering--three dimensions grounded in both theoretical incentives and empirical observability.
+
+\subsection{Behavioral Classification Criteria}
+
+I label a rider as engaging in strategic cancellation behavior if all of the following conditions hold:
+
+\begin{enumerate}
+    \item the rider has committed at least two cancellations citing bike issues over their lifecycle;
+    \item more than 70 percent of these cancellations occurred after pickup, when verification is least feasible;
+    \item over 20 percent of their total cancellations are categorized under bike issues, indicating excuse-patterning.
+\end{enumerate}
+
+These thresholds ensure that the flagged behavior is:
+
+\begin{itemize}
+    \item Repeated, not incidental;
+    \item Unverifiable by design, maximizing asymmetry; and
+    \item Systematic, not randomly distributed across reasons.
+\end{itemize}
+
+This framework identifies 143 riders (approximately 0.7 percent of the dataset) as high-likelihood strategic actors. Across these riders, 5,862 orders are labeled as strategically canceled and used for model training in subsequent sections.
+
+\subsection{Behavioral Evidence in Data}
+
+I observe three strong empirical signatures:
+
+\begin{enumerate}
+    \item \textbf{high clustering of excuse type:} strategic riders consistently cite the same unverifiable issue across cancellations.
+    \item \textbf{high post-pickup cancellation rate:} over 90 percent of strategic cancels occur after the order is picked up, reducing verifiability.
+    \item \textbf{positive fatigue slope:} the likelihood of citing a bike issue increases with session duration, consistent with the disutility cost term $\tau_{it}$ in the utility model.
+\end{enumerate}
+
+\subsection{Operational Interpretability}
+
+This framework provides an interpretable mechanism for platforms. It satisfies the following properties:
+
+\begin{enumerate}
+    \item it is auditable (based on log data only),
+    \item it is fair (requires patterns, not one-off behavior), and
+    \item it is generalizable across platform settings and geographies.
+\end{enumerate}
+
+I apply this framework in the empirical hypothesis testing (Section 8) and to train predictive classifiers (Section 9) and policy simulations (Section 11).
+
+\section{Empirical Hypothesis Testing}
+
+In this section, I present the results of testing the five core hypotheses outlined in my theoretical framework (Section 4.4), using the labeled data and engineered features described in Sections 5--7. Each hypothesis is grounded in economic logic and evaluated through both descriptive statistics and inferential methods.
+
+\subsection{H1 -- Behavioral Repetition as a Predictor of Strategic Type}
+
+\textbf{Hypothesis:} Riders with repeated unverifiable cancellations ($\geq$2 bike issue cases) are significantly more likely to continue exhibiting strategic behavior.
+
+\textbf{Method:} I segment riders based on the number of prior bike issue cancellations and compute the probability of subsequent cancellations also citing bike issues.
+
+\textbf{Findings:} The probability of a bike issue claim increases from 8.3 percent at $k=1$ to 31.7 percent at $k=2$.  
+A likelihood ratio test yields $p = 0.001$, validating the hypothesis. This supports the behavioral threshold model of strategic escalation.
+
+As depicted in Figure 2, the probability curve exhibits a sharp discontinuity at the $k = 2$ threshold.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{h1_threshold_curve.png}
+\caption{Strategic probability curve by number of past incidents (H1 test): Sharp jump from 8.3 percent to 31.7 percent at $k = 2$ incidents}
+\label{fig:h1_curve}
+\end{figure}
+
+\subsection{H2 -- Peak Hour Incentives and Outside Options}
+
+\textbf{Hypothesis:} Riders are more likely to cancel strategically during peak hours due to increased outside option value $v_{it}$.
+
+\textbf{Method:} I use both a two-proportion Z-test and logistic regression to test this hypothesis comprehensively.
+
+\textbf{Findings:}  
+Z-test: 27 percent of strategic orders occur in peak hours, compared to 18 percent for all other orders ($p = 0.01$).
+
+Logistic regression: Peak hour coefficient $\beta = 0.412$ (Standard Error (SE) = 0.087, $p = 0.001$).
+
+This translates to a 51 percent increase in the odds of strategic cancellation during peak hours.
+
+Figure 3 depicts the hourly distribution of strategic cancellations.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{h2_peak_hour_distribution.png}
+\caption{Strategic cancellation concentration by hour of day (H2 test): Clear peaks during lunch (12--14) and dinner (18--21) hours}
+\label{fig:h2_distribution}
+\end{figure}
+
+\subsection{H3 -- Strategic Sensitivity to Distance (Effort Cost)}
+
+\textbf{Hypothesis:} Longer distances increase the probability of strategic cancellations due to higher delivery cost $c(d_{ij})$.
+
+\textbf{Method:} I use logistic regression on total distance to predict strategic cancellation (binary outcome).
+
+\textbf{Findings:} The coefficient on distance is positive and significant ($\beta = 0.034$, $p = 0.001$), confirming a monotonic relationship.
+
+\textbf{Marginal Effect Interpretation:} In practical terms, this means that for every additional kilometer a driver must travel, the odds of strategic cancellation increase by approximately 3.4 percent. For a typical 10 km order (versus a 5 km order), this translates to a 17 percent higher likelihood of strategic cancellation—a substantial operational impact.
+
+As depicted in Figure 4, the relationship is approximately linear across typical order distances.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{h3_distance_effect.png}
+\caption{Distance effect on cancellation odds from logistic regression (H3 test): Each additional kilometer increases strategic cancellation odds by 3.4 percent}
+\label{fig:h3_distance}
+\end{figure}
+
+\subsection{H4 -- Post-Pickup Cancellation Timing is Not Predictive}
+
+\textbf{Hypothesis:} Cancellation speed (for instance, time to cancel after pickup) is not a reliable indicator of strategic intent.
+
+\textbf{Method:} Compare time to cancel between strategic and non-strategic post-pickup cancellations using t-test and effect size analysis.
+
+\textbf{Findings:}  
+\begin{itemize}
+    \item Mean time to cancel (strategic): 23.5 minutes (Standard Deviation (SD) = 18.2)
+    \item Mean time to cancel (non-strategic): 20.3 minutes (SD = 17.9)
+    \item T-test: $t(2116) = 1.47$, $p = 0.14$ (not statistically significant at $\alpha = 0.05$)
+    \item Cohen's $d = 0.18$ (small effect)
+    \item 95 percent Confidence Interval (CI) for difference: [--1.1, 7.5] minutes
+    \item Statistical power (post-hoc): 0.41
+\end{itemize}
+
+The $p$-value of 0.14 indicates that we cannot reject the null hypothesis that cancellation timing is the same for strategic and non-strategic cancellations. This finding is crucial because it demonstrates that simple timing-based heuristics (such as ``quick cancellations are more suspicious'') are not reliable indicators of strategic behavior.
+
+This result invalidates simplistic heuristics used in prior platform logic. Figure 5 depicts the overlapping distributions.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{h4_timing_histogram.png}
+\caption{Histogram comparison of time-to-cancel (H4 test): Distributions largely overlap, indicating timing is an unreliable signal}
+\label{fig:h4_timing}
+\end{figure}
+
+\subsection{H5 -- Cold-Start Strategic Risk is Predictable Without History}
+
+\textbf{Hypothesis:} Even without historical rider behavior, order-level and session-level features can predict strategic cancellation risk.
+
+\textbf{Method:} Train a restricted Random Forest classifier using only first-order or zero-history rider data. Score performance and interpret top predictors.
+
+\textbf{Findings:}
+\begin{itemize}
+    \item AUC-ROC: 0.682 (95 percent CI: 0.641--0.723)
+    \item Precision at 0.30 threshold: 71.3 percent
+    \item Recall at 0.30 threshold: 42.1 percent
+    \item Key features: session time, time to pickup, total distance
+\end{itemize}
+
+This supports my cold-start logic and the platform's ability to enforce low-friction early screening.
+
+\subsection{Summary of Hypothesis Testing Results}
+
+\begin{table}[H]
+\centering
+\caption{Summary of Empirical Hypothesis Tests}
+\label{tab:hypothesis_summary}
+\begin{tabular}{@{}p{3.8cm}p{2.5cm}cp{2.8cm}p{2.5cm}r@{}}
+\toprule
+\textbf{Hypothesis} & \textbf{Test Method} & \textbf{p-value} & \textbf{Effect size} & \textbf{95\% CI} & \textbf{Sample size}\textsuperscript{a} \\
+\midrule
+H1: Behavioral Repetition & Likelihood Ratio & $< 0.001$ & OR = 5.2 & [3.8, 7.1] & 2,406 \\
+H2a: Peak Hour (Z-test) & Two-proportion Z & $< 0.01$ & $d = 0.24$ & [0.06, 0.42] & 447,187 \\
+H2b: Peak Hour (Regression) & Logistic & $< 0.001$ & $\beta = 0.412$\textsuperscript{b} & [0.241, 0.583] & 447,187 \\
+H3: Distance Effect & Logistic & $< 0.001$ & $\beta = 0.034$\textsuperscript{b} & [0.023, 0.045] & 447,187 \\
+H4: Timing Not Predictive & Independent t & $0.140$\textsuperscript{c} & $d = 0.18$ & [--1.1, 7.5] min & 2,118 \\
+H5: Cold-Start Prediction & Random Forest & --\textsuperscript{d} & AUC = 0.682 & [0.641, 0.723] & 8,943 \\
+\bottomrule
+\end{tabular}
+\smallskip
+\footnotesize{\textsuperscript{a} n denotes the number of observations in each hypothesis test.\\
+\textsuperscript{b} $\beta$ refers to the log-odds coefficient from logistic regression.\\
+\textsuperscript{c} Low power (0.41) suggests results should be interpreted with caution.\\
+\textsuperscript{d} Validated through cross-validation; no p-value computed.}
+\end{table}
+
+Together, these results validate my structural assumptions, labeling strategy, and inform feature importance rankings in the predictive modeling phase (Section 9).
+
+\section{Predictive Modeling and Validation}
+
+In this section, I summarize my machine learning models for predicting strategic cancellations at the order level. Two classifiers were developed and evaluated:
+
+\begin{enumerate}
+    \item A full model using both rider history and task attributes
+    \item A cold-start model using only current-order features (detailed in Section 10)
+\end{enumerate}
+
+Both were trained and validated using the behaviorally flagged dataset from Section 7, and guided by the economic proxies derived in Section 6.
+
+\subsection{Full Strategic Detection Model}
+
+\subsubsection{Model Setup}
+
+We use a Random Forest classifier with:
+
+\begin{enumerate}
+    \item n\_estimators = 50
+    \item max\_depth = 6
+    \item class\_weight = ``balanced''
+\end{enumerate}
+
+\textbf{Features included:}
+\begin{enumerate}
+    \item \textbf{Rider history:} lifetime order count, bike issue rate, cancel after pickup ratio
+    \item \textbf{Task cost:} total distance, first mile distance, session time
+    \item \textbf{Context:} hour, is peak hour, time to accept, time to pickup
+\end{enumerate}
+
+\subsubsection{Evaluation Results}
+
+\begin{table}[H]
+\centering
+\caption{Full Model Performance Metrics: AUC-ROC of 0.723 indicates good discrimination despite severe class imbalance}
+\label{tab:full_model_performance}
+\begin{tabular}{lcc}
+\toprule
+Metric & Value & 95 percent CI \\
+\midrule
+AUC-ROC & 0.723 & [0.712, 0.734] \\
+AUC-PR & 0.089 & [0.081, 0.097] \\
+Precision & 2.6 percent & [2.4, 2.8] \\
+Recall & 66.0 percent & [63.8, 68.2] \\
+F1 Score & 4.9 percent & [4.6, 5.2] \\
+True Positives (TP) & 1,143 & -- \\
+False Positives (FP) & 43,067 & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Despite high recall, the model's precision suffers due to class imbalance—highlighting the need for risk filtering or threshold tuning. The low AUC-PR reflects the challenge of rare event detection.
+
+\subsection{Balanced Sampling for Improved Precision}
+
+To address poor precision, I downsampled the non-strategic class to a 3:1 ratio.
+
+\begin{table}[H]
+\centering
+\caption{Balanced Model Performance: Trading recall for precision improves operational viability}
+\label{tab:balanced_model_performance}
+\begin{tabular}{lcc}
+\toprule
+Metric & Value & 95 percent CI \\
+\midrule
+AUC-ROC & 0.717 & [0.701, 0.733] \\
+AUC-PR & 0.412 & [0.387, 0.437] \\
+Precision & 61.7 percent & [58.3, 65.1] \\
+Recall & 9.4 percent & [8.1, 10.7] \\
+F1 Score & 16.3 percent & [14.7, 17.9] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This conservative model minimizes false positives, making it suitable for interventions like rider flagging, added verification, or order rerouting.
+
+\subsection{Feature Importance (SHAP-Consistent)}
+
+The top contributors in both models were:
+
+\begin{enumerate}
+    \item \textbf{Session Time} -- longer shifts correlate with increased strategic risk
+    \item \textbf{Hour of Day} -- timing mediates opportunity cost
+    \item \textbf{Distance (Total, First Mile)} -- proxies for perceived task burden
+    \item \textbf{Peak Hour Indicator} -- external demand shaping internal utility
+    \item \textbf{Rider History Metrics} -- cumulative indicators of strategic inclination
+\end{enumerate}
+
+These importance rankings align with the theoretical drivers outlined in Section 4.2 and validated in Section 8.
+
+\subsection*{Figure 6 -- Feature Importance via SHAP}
+
+To better understand how different features contribute to the model's decisions, I analyzed feature importance using SHAP (SHapley Additive exPlanations). This method attributes a consistent value to each feature's contribution for individual predictions, enabling interpretability even for complex ensemble models like Random Forest.
+
+In my model, \textbf{session time} and \textbf{hour of day} dominate prediction influence, supporting the theoretical constructs of effort disutility and outside option value, respectively. High SHAP values for \texttt{total distance} and \texttt{peak hour} also validate the predicted role of perceived task cost and temporal incentives.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{shap_bar_plot.png}
+\caption{SHAP feature importances for full model: Session time and hour dominate predictions, validating economic theory. Color legend: Red = high feature value increases prediction; Blue = low feature value decreases prediction.}
+\label{fig:shap_bar}
+\end{figure}
+
+\subsection{Confusion Matrix Audit}
+
+To better understand classification outcomes, I audited the confusion matrix of the full model. The table below summarizes the results at the selected operating threshold:
+
+\begin{table}[H]
+\centering
+\caption{Confusion Matrix for Full Model: High false positive rate reflects base rate challenge}
+\label{tab:confusion_matrix}
+\begin{tabular}{lcc}
+\toprule
+ & Predicted Strategic & Predicted Genuine \\
+\midrule
+\textbf{Actual Strategic} & 1,143 & 588 \\
+\textbf{Actual Genuine}   & 43,067 & 86,245 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The model tends to over-flag due to the strategic base rate (approximately 1.3 percent), which is expected given the severe class imbalance. I use this audit to highlight why downsampled models are necessary—they trade some recall in exchange for deployment viability and precision gains.
+
+\subsection*{Figure 7 -- ROC Curve Comparison Across Models}
+
+To evaluate the robustness and performance of my models under class imbalance, I compared the ROC curves of the full model and the balanced model. Both classifiers achieve AUC greater than 0.7, indicating strong discriminatory power even under low positive base rate conditions.
+
+The balanced model slightly outperforms the full model at most operating points due to reduced false positives, making it more suitable for interventions. I marked the suggested operating point (threshold = 0.30) based on optimal trade-off between sensitivity and specificity in my policy simulation logic (Section 11).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{roc_curve_comparison.png}
+\caption{ROC curve comparison across models: Both models achieve AUC $\geq$ 0.7 despite class imbalance}
+\label{fig:roc_comparison}
+\end{figure}
+
+\section{Cold-Start Risk Modeling}
+
+New riders present a unique challenge for platform operations: they lack historical data, making it difficult to assess reliability. Yet these accounts are also disproportionately vulnerable to opportunistic behavior due to low switching costs and weak reputational constraints. This section presents a custom risk-scoring model built for \textit{first-order or zero-history riders}, using only real-time task and session data.
+
+\subsection{Problem Context and Theory}
+
+From an economic lens, cold-start riders exacerbate \textit{adverse selection}—platforms cannot distinguish honest from strategic types without behavioral history \citep{akerlof1970lemons}. While some platforms solve this by restricting high-value orders initially, such blanket rules reduce efficiency.
+
+My approach uses observable features available at order assignment to assess behavioral similarity to known strategic profiles. This enables dynamic, task-level risk mitigation without delaying onboarding.
+
+\subsection{Feature Set and Model Training}
+
+I extract and model the following features:
+
+\begin{enumerate}
+    \item total distance, first mile distance, last mile distance
+    \item session time, time to accept, time to pickup
+    \item hour, is peak hour
+\end{enumerate}
+
+These features proxy for effort cost $c(d_{ij})$, fatigue $\tau_{ij}$, and outside option pressure $v_{it}$. Importantly, they require no prior order data.
+
+A \textbf{Random Forest classifier} is trained on a filtered set of cold-start rider cancellations, where risk labels are heuristically defined based on:
+
+\begin{enumerate}
+    \item post-pickup timing,
+    \item peak-hour clustering, and
+    \item long-distance patterning
+\end{enumerate}
+
+\subsection{Evaluation and Simulated Outcomes}
+
+I applied a risk threshold of 0.30 and evaluated results on the test set:
+
+\begin{table}[H]
+\centering
+\caption{Cold-Start Model Performance: High precision protects new riders from false flags}
+\label{tab:coldstart_performance}
+\begin{tabular}{lcc}
+\toprule
+Metric & Value & 95\% CI \\
+\midrule
+AUC-ROC & 0.682 & [0.641, 0.723] \\
+AUC-PR & 0.287 & [0.251, 0.323] \\
+Precision at 0.30 threshold & 71.3\% & [65.2\%, 77.4\%] \\
+Recall at 0.30 threshold & 42.1\% & [37.8\%, 46.4\%] \\
+F1 Score & 52.9\% & [48.6\%, 57.2\%] \\
+Orders flagged & 892 & -- \\
+True Positives & 376 & -- \\
+False Positives & 152 & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The result demonstrates that \textbf{cold-start risk is predictable}. Moreover, \textbf{false positives are minimized}, protecting rider fairness.
+
+\subsection{Feature Importance}
+
+Feature importance from the cold-start model aligns with expectations:
+
+\begin{enumerate}
+    \item \textbf{Session Time:} longer sessions are more associated with bike issues,
+    \item \textbf{Time to Pickup:} riders delaying restaurant arrival may be hesitating, and
+    \item \textbf{Total Distance:} correlates with opportunity cost and avoidance risk
+    \setcounter{enumi}{3}
+    \item \textbf{Hour:} peak-hour time blocks dominate risky decisions.
+\end{enumerate}
+
+These findings are consistent with the full model's SHAP interpretation, validating that even stripped-down models preserve structural insight.
+
+Figure~\ref{fig:coldstart_examples} presents example cold-start rider profiles and their risk scores.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{coldstart_scores.png}
+\caption{Cold-start rider examples and risk scores: High-risk riders show long distances and peak-hour timing}
+\label{fig:coldstart_examples}
+\end{figure}
+
+\subsection{Deployment Considerations}
+
+This cold-start logic is highly actionable:
+
+\begin{enumerate}
+    \item \textbf{Lightweight model:} usable in real-time assignment systems,
+    \item \textbf{Feature-minimal:} no dependency on stored rider history, and
+    \item \textbf{Policy flexibility:} risk score can drive dynamic friction (for example, photo request, order cap, call-back)
+\end{enumerate}
+
+I evaluate platform-wide impact from adopting this risk-screening mechanism at scale in Section~11.
+
+\section{Policy Simulation and Economic Impact}
+
+In this section, I quantify the operational value of my predictive models by simulating potential interventions and estimating time-based operational savings. I also evaluate the scale of strategic cancellations and their broader network effects.
+
+\subsection{Strategic Cancellation Volume}
+
+From my revised detection framework (Section~7):
+
+\begin{enumerate}
+    \item Flagged strategic orders: 5,862 out of 447,187 total orders (approximately 1.3 percent), and
+    \item Flagged strategic riders: 143 out of approximately 19,000.
+\end{enumerate}
+
+These figures provide a conservative baseline of harmful behavior that, if mitigated, can improve platform throughput and reduce support burden.
+
+\subsection{Operational Impact Model}
+
+I model operational impact through time-based metrics:
+
+\begin{enumerate}
+    \item Time lost resolving strategic cancels (support burden),
+    \item Delivery time wasted (food en route but unserved), and
+    \item Cascade impact (other orders delayed due to support lock).
+\end{enumerate}
+
+Based on empirical timing data:
+
+\begin{enumerate}
+    \item Mean time to cancel for strategic: approximately 23.5 minutes, and
+    \item Monthly projection of flagged strategic cancels: approximately $5,862 \times \frac{30}{\text{dataset days}}$.
+    \item Estimated 1,101 hours per month of operational loss (equivalent to 6.9 full-time employees (FTEs)).
+\end{enumerate}
+
+These estimates represent direct operational time lost, excluding customer churn, refund processing, or downstream service level violations (SLVs).
+
+\subsection{Intervention Policies}
+
+I simulate a three-tiered policy based on risk score output:
+
+\begin{table}[H]
+\centering
+\caption{Risk-Based Intervention Policies: Graduated response minimizes false positive harm}
+\label{tab:intervention_policy}
+\begin{tabular}{ccc}
+\toprule
+\textbf{Risk Band} & \textbf{Range} & \textbf{Action} \\
+\midrule
+Low & $<$ 0.3 & Normal processing \\
+Medium & 0.3--0.7 & Require photo verification \\
+High & $>$ 0.7 & Callback + manual override \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Using my balanced model (Section~9), I simulate these actions on a hold-out test set and estimate the cancellation reduction potential.
+
+Figure~\ref{fig:policy_impact} shows that 15--60 percent of strategic cancels could be preempted, with strategic flagging at onboarding eliminating ghost riders with 100 percent cancellation rates.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/figure10_policy_simulation.png}
+\caption{Simulated policy impact by intervention tier: Moderate interventions achieve 40 percent reduction in strategic cancellations}
+\label{fig:policy_impact}
+\end{figure}
+
+\subsection{Cold-Start Simulation}
+
+Using the cold-start model (Section~10):
+
+\begin{enumerate}
+    \item 892 high-risk orders flagged with precision of 71.3 percent
+    \item When scaled to platform-wide volume, this could eliminate hundreds of unverifiable cancels per month from first-time users
+\end{enumerate}
+
+This complements rider reputation systems and helps prevent early abuse.
+
+\subsection{Platform-Level Implications}
+
+Strategic cancellations are not isolated events; they trigger downstream effects:
+
+\begin{enumerate}
+    \item Increased ticket load for support
+    \item Service level violations for other riders due to queue delay
+    \item Customer refunds and churn risk
+\end{enumerate}
+
+Mitigating even a portion of these effects improves:
+
+\begin{enumerate}
+    \item Platform efficiency (measured in operational hours saved)
+    \item Rider integrity (filters out bad actors earlier)
+    \item Customer satisfaction (lower resolution delays)
+\end{enumerate}
+
+\section{Robustness Checks and Sensitivity Analysis}
+
+To ensure the reliability and generalizability of the above findings, I conducted multiple robustness tests across model configurations, labeling thresholds, temporal slices, and deployment scenarios.
+
+I collect the results of those tests and the insights derived in this section.
+
+\subsection{Label Sensitivity Analysis}
+
+My proxy label for strategic riders uses three thresholds:
+
+\begin{enumerate}
+    \item Bike issues $\geq 2$
+    \item Post-pickup ratio $> 70$ percent
+    \item Bike issue ratio $> 20$ percent
+\end{enumerate}
+
+I systematically varied each threshold to test model accuracy:
+
+\begin{table}[H]
+\centering
+\caption{Label Sensitivity Results: Model AUC and recall by threshold configuration}
+\label{tab:label_sensitivity}
+\begin{tabular}{lcccc}
+\toprule
+Threshold Combination & \% Strategic & AUC-ROC & Precision & Recall \\
+\midrule
+Baseline (2 / 70\% / 20\%) & 1.3\% & 0.723 & 2.6\% & 66.0\% \\
+Relaxed (1 / 50\% / 10\%) & 3.1\% & 0.682 & 1.2\% & 78.9\% \\
+Strict (3 / 80\% / 30\%) & 0.6\% & 0.743 & 5.1\% & 53.4\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Findings:} 
+
+\begin{enumerate}
+    \item A stricter threshold improves precision at the cost of recall.
+    \item The base configuration strikes a reasonable balance between coverage and reliability.
+\end{enumerate}
+
+\subsection{Cross-Time Validation}
+
+I trained and tested the model across different months to check for temporal generalization, and I found:
+
+\begin{itemize}
+    \item No significant drop in AUC across periods
+    \item SHAP importance remained stable (session time, distance, and hour)
+\end{itemize}
+
+This suggests the model's logic is not tied to seasonal patterns or temporary platform fluctuations.
+
+\subsection{Model Comparison}
+
+I also tested alternative classifiers and found that:
+
+\begin{itemize}
+    \item \textbf{Logistic Regression:} had poor recall (11.4 percent), which made it unsuitable for detecting rare events.
+    \item \textbf{XGBoost:} achieved a similar AUC (0.731) but required more tuning, and I opted against it because my focus was on interpretability and operational stability.
+    \item \textbf{Random Forest:} was chosen for its balance between performance and interpretability.
+\end{itemize}
+
+\subsection{False Positive Audit}
+
+I manually reviewed a random sample of 100 high-risk false positives. My findings:
+
+\begin{enumerate}
+    \item 74 percent involved long-distance orders during peak hours,
+    \item 62 percent had session times greater than 90 minutes, and
+    \item 29 percent canceled under alternate unverifiable reasons.
+\end{enumerate}
+
+I conclude that even "false positives" often share the behavioral profile of strategic types—underscoring that the issue may lie in the limitations of ground-truth labeling rather than in the model itself.
+
+\subsection{Threshold Stability for Policy Application}
+
+Using risk score cutoffs of 0.30 (cold-start) and 0.50 (full model), I found:
+
+\begin{itemize}
+    \item The interventions were consistent across multiple validation runs, and
+    \item No rider was flagged inconsistently across folds.
+\end{itemize}
+
+This validates the stability of policy thresholds for real-time deployment.
+
+These checks reinforce my confidence that the detection and scoring systems are robust, interpretable, and usable across platform cycles and real-world operational conditions. I now turn to the broader limitations and future directions.
+
+\section{Limitations and Future Work}
+
+Even though I presented a novel and empirically grounded framework for detecting strategic behavior on food delivery platforms, several limitations remain—both in scope and methodology. In this section, I outline those gaps and propose future directions for advancing the work.
+
+\subsection{No Ground-Truth Verification}
+
+The data are based on behavioral proxies rather than verified intent, which means that I cannot definitively confirm whether a cancellation labeled as strategic was actually malicious. Even with precision-focused thresholds, there remains a risk of false attribution.
+
+In future work, I hope to investigate better ways to examine rider intent. For example, I plan to incorporate:
+
+\begin{itemize}
+    \item Support ticket text analysis,
+    \item Voice call or chat logs, and
+    \item Rider appeals and audit resolutions.
+\end{itemize}
+
+These additions could improve the proxy label accuracy or support development of semi-supervised datasets for more nuanced classification.
+
+\subsection{No Direct Monetary Cost Attribution}
+
+I used time-based proxies to estimate operational impact, but did not quantify monetary costs—such as refunds, food waste, or customer churn.
+
+In future research, I hope to collaborate with platforms that have access to revenue data so I can integrate these losses directly. This would enable more precise estimation of:
+
+\begin{itemize}
+    \item Strategic behavior return on investment (ROI), and
+    \item True economic externalities across the order network.
+\end{itemize}
+
+\subsection{Cold-Start Model Development}
+
+Although the cold-start model was developed using careful feature engineering and risk heuristics, and while the performance metrics show high precision and recall, I need to expand validation through broader field testing.
+
+\textbf{Next steps:}
+\begin{itemize}
+    \item I need to expand validation using larger datasets, and
+    \item I need to deploy the model in a real-world pilot using A/B holdout testing.
+\end{itemize}
+
+\subsection{Generalizability Beyond Platform and Geography}
+
+My data come from a single Indian platform. Since rider incentives, enforcement norms, and behavioral risk patterns vary across geographies, I need to ensure generalizability.
+
+\textbf{Extension:}
+\begin{itemize}
+    \item I plan to run models on US-based or EU-based gig data, and
+    \item I aim to examine how different payout structures (e.g., flat versus variable pay) shape strategic pressure.
+\end{itemize}
+
+\subsection{Static Decision Modeling}
+
+My model currently assumes static rider decision-making at each task. In reality, riders may learn and adapt based on prior outcomes, reputational feedback (e.g., platform metrics), or support team interactions.
+
+Therefore, in future research, I need to:
+\begin{itemize}
+    \item Integrate reinforcement learning or dynamic discrete choice modeling, and
+    \item Track how riders adjust their behavior after platform penalties or interventions.
+\end{itemize}
+
+\subsection{Unmeasured Confounders}
+
+I do not control for potential confounders such as:
+\begin{enumerate}
+    \item \textbf{Weather} (e.g., bike breakdowns may be more common during rainfall),
+    \item \textbf{Platform load} (e.g., support bottlenecks may influence cancellation response time), and
+    \item \textbf{City congestion or rider density}.
+\end{enumerate}
+
+Data enrichment through public APIs or platform metadata would improve robustness.
+
+These limitations are not flaws, but boundaries of my current visibility. Each opens a pathway for extending this framework into a fuller behavioral economic system that helps platforms balance efficiency, fairness, and integrity.
+
+\section{Conclusion}
+
+In this research, I have sought to address a critical operational challenge faced by food delivery platforms: strategic cancellations masked as unverifiable ``bike issues.'' By combining economic theory with machine learning techniques, I developed a practical framework for identifying and mitigating this costly behavior.
+
+My analysis of 447,187 food delivery orders revealed that 90.9 percent of bike issue cancellations occur after pickup—a pattern 1.73 times higher than other cancellation types. This stark difference, combined with behavioral clustering around specific riders, suggests strategic rather than genuine mechanical failures.
+
+My findings indicate that:
+
+\textbf{The key contributions of this work include:}
+\begin{enumerate}
+    \item A theory-driven proxy labeling strategy that identifies strategic behavior through repeated patterns rather than single incidents,
+    \item Predictive models achieving 0.723 AUC-ROC despite severe class imbalance, with interpretable features aligned to economic theory, and
+    \item A cold-start risk assessment system enabling fair evaluation of new riders without historical data.
+\end{enumerate}
+\begin{enumerate}
+    \setcounter{enumi}{3} % continue from (3)
+    \item Evidence-based policy recommendations showing potential for 40 percent reduction in strategic cancellations through graduated interventions
+\end{enumerate}
+
+My findings challenge conventional assumptions about strategic behavior. Contrary to platform intuition, cancellation timing proved non-predictive of intent ($p = 0.14$). Instead, behavioral repetition emerged as the strongest signal—riders with two or more bike issue cancellations showed a 280 percent increase in likelihood of future strategic behavior.
+
+The operational implications are substantial. Strategic cancellations cost platforms an estimated 1,101 operational hours monthly in my dataset alone. By implementing risk-based interventions—from simple photo verification for medium-risk orders to callbacks for high-risk cases—platforms can reduce this burden while maintaining fairness to genuine riders.
+
+This work demonstrates that platforms can enhance operational integrity without sacrificing rider fairness or customer experience. The path forward involves better alignment of incentives, smarter use of behavioral data, and continued refinement of human-machine collaboration in the gig economy.
+
+% Appendices
+\appendix
+
+\section*{A. Appendix: Variable Definitions and Supplementary Tables}
+\addcontentsline{toc}{section}{Appendix: Variable Definitions and Supplementary Tables}
+
+This appendix contains supporting materials to complement the main analysis. It includes variable definitions, extended data tables, robustness results, and figure captions.
+
+\subsection*{A.1 Variable Definitions}
+\subsubsection*{A.1.1 Raw Variables}
+
+\begin{table}[H]
+\centering
+\caption{Raw Variable Definitions}
+\label{tab:raw_vars}
+\begin{tabular}{p{4cm} p{10cm}}
+\toprule
+\textbf{Variable Name} & \textbf{Description} \\
+\midrule
+order time & Timestamp when order was placed \\
+allot time & Timestamp when order was assigned to a rider \\
+accept time & Timestamp when rider accepted the task \\
+pickup time & Timestamp when order was collected from restaurant \\
+cancelled time & Timestamp of cancellation request \\
+delivered time & Timestamp when order was completed (if applicable) \\
+first mile distance & Distance from current rider location to restaurant \\
+last mile distance & Distance from restaurant to customer \\
+total distance & Sum of first and last mile distances \\
+cancel after pickup & 1 if cancelled after pickup, else 0 \\
+reason text & Logged cancellation reason \\
+is peak hour & 1 if order occurred during peak windows (12--14, 18--21), else 0 \\
+session time & Total time rider was active at time of order (in minutes) \\
+lifetime order count & Number of completed orders by rider up to current one \\
+bike issue rate & \% of rider's cancels attributed to bike issues \\
+cancel rate & \% of orders cancelled by a rider overall \\
+hour & Hour of the day extracted from order time \\
+time to accept & Time between allot and accept (in minutes) \\
+time to pickup & Time between accept and pickup (in minutes) \\
+time to cancel & Time from pickup to cancellation (in minutes) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection*{A.1.2 Engineered Features}
+
+\begin{table}[H]
+\centering
+\caption{Engineered Feature Definitions}
+\label{tab:engineered_features}
+\begin{tabular}{p{4.2cm} p{10.3cm}}
+\toprule
+\textbf{Feature Name} & \textbf{Description} \\
+\midrule
+cancel after pickup & Flag derived from timestamps: cancelled after pickup \\
+is peak hour & Derived from hour: peak = 12--14 or 18--21 \\
+session time & Total minutes active by the rider during the session \\
+bike issue rate & Rider's bike issue cancels / total cancels \\
+cancel rate & Rider's total cancels / total orders \\
+time to accept & Time difference in minutes: accept time -- allot time \\
+time to pickup & Time difference in minutes: pickup time -- accept time \\
+time to cancel & Time difference in minutes: cancelled time -- pickup time \\
+distance $\times$ peak & Interaction term: total distance $\times$ is peak hour \\
+distance $\times$ fatigue & Interaction term: total distance $\times$ session time \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These engineered features translate theoretical constructs (e.g., cost, fatigue, outside option value) into measurable model inputs.
+
+\subsection*{A.2 Supplementary Tables}
+\subsubsection*{A.2.1 Descriptive Statistics}
+
+\begin{table}[H]
+\centering
+\caption{Descriptive Statistics for Key Variables}
+\label{tab:descriptive_stats}
+\begin{tabular}{l r@{.}l r@{.}l r@{.}l r@{.}l r@{.}l}
+\toprule
+\textbf{Variable} & \multicolumn{2}{c}{\textbf{Mean}} & \multicolumn{2}{c}{\textbf{Std Dev}} & \multicolumn{2}{c}{\textbf{Min}} & \multicolumn{2}{c}{\textbf{Max}} \\
+\midrule
+Total Distance (km)       & 5&73  & 3&21  & 0&10  & 25&8  \\
+Session Time (min)        & 87&3  & 112&4 & 0&0   & 720&0 \\
+Time to Accept (min)      & 2&1   & 4&8   & 0&0   & 120&0 \\
+Time to Pickup (min)      & 15&7  & 12&3  & 0&0   & 60&0 \\
+Time to Cancel (min)      & 21&4  & 18&6  & 0&0   & 180&0 \\
+Lifetime Orders           & 145&2 & 287&2 & 1&0   & 5432&0 \\
+Cancel Rate (\%)          & 3&5   & 7&2   & 0&0   & 100&0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection*{A.2.2 Label Sensitivity Test Results}
+
+\begin{table}[H]
+\centering
+\caption{Label Sensitivity Test Results}
+\label{tab:label_sensitivity}
+\begin{tabular}{p{4.5cm} r@{.}l r@{.}l r@{.}l r@{.}l}
+\toprule
+\textbf{Configuration} & \multicolumn{2}{c}{\textbf{Strategic \%}} & \multicolumn{2}{c}{\textbf{AUC}} & \multicolumn{2}{c}{\textbf{Precision}} & \multicolumn{2}{c}{\textbf{Recall}} \\
+\midrule
+Base (2, 70\%, 20\%)     & 1&3  & 0&723 & 2&6 & 66&0 \\
+Relaxed (1, 50\%, 10\%)  & 3&1  & 0&682 & 1&2 & 78&9 \\
+Strict (3, 80\%, 30\%)   & 0&6  & 0&743 & 5&1 & 53&4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{1em}
+
+\subsubsection*{A.2.3 Cold-Start Rider Flagged Examples}
+
+\begin{table}[H]
+\centering
+\caption{Cold-Start Rider Flagged Examples}
+\label{tab:cold_start_examples}
+\begin{tabular}{cccccc}
+\toprule
+\textbf{Distance (km)} & \textbf{Time to Pickup} & \textbf{Hour} & \textbf{Peak Hour} & \textbf{Risk Score} \\
+\midrule
+4.16 & 41.42 min & 14 & Yes & 0.30 \\
+5.46 & 32.50 min & 16 & No  & 0.28 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{1em}
+
+\subsection*{A.3 Full Confusion Matrix for Balanced Model}
+
+\begin{table}[H]
+\centering
+\caption{Full Confusion Matrix for Balanced Model}
+\label{tab:balanced_confusion}
+\begin{tabular}{lcc}
+\toprule
+\textbf{} & \textbf{Predicted Strategic} & \textbf{Predicted Genuine} \\
+\midrule
+Actual Strategic & 1,143 & 588 \\
+Actual Genuine   & 43,067 & 86,245 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{1em}
+
+\subsection*{A.4 Glossary of Acronyms}
+
+\begin{itemize}
+    \item \textbf{API} -- Application Programming Interface: software intermediary for applications
+    \item \textbf{AUC-PR} -- Area Under the Precision--Recall Curve: performance metric for imbalanced data
+    \item \textbf{AUC-ROC} -- Area Under the Receiver Operating Characteristic Curve: measure of model discrimination
+    \item \textbf{CI} -- Confidence Interval: range of plausible values for parameter estimate
+\end{itemize}
+
+\newpage
+\subsection*{A.4 Glossary of Acronyms (continued)}
+
+\begin{itemize}
+    \item \textbf{EU} -- European Union: political and economic union
+    \item \textbf{FN} -- False Negative: incorrect rejection of true hypothesis
+    \item \textbf{FP} -- False Positive: incorrect acceptance of false hypothesis
+    \item \textbf{FPR} -- False Positive Rate: proportion of negatives incorrectly classified
+    \item \textbf{FTE} -- Full-Time Employee: worker employed for standard hours
+    \item \textbf{GDPR} -- General Data Protection Regulation: EU data privacy law
+    \item \textbf{ML} -- Machine Learning: computational methods for pattern recognition
+    \item \textbf{OR} -- Odds Ratio: measure of association between exposure and outcome
+    \item \textbf{ROI} -- Return on Investment: ratio of net profit to investment cost
+    \item \textbf{SD} -- Standard Deviation: measure of variability
+    \item \textbf{SE} -- Standard Error: standard deviation of sampling distribution
+    \item \textbf{SHAP} -- SHapley Additive exPlanations: game-theoretic approach to model interpretation
+    \item \textbf{SLA} -- Service Level Agreement: contractual performance standards
+    \item \textbf{SLV} -- Service Level Violation: failure to meet agreed performance standards
+    \item \textbf{TP} -- True Positive: correct identification of positive case
+    \item \textbf{US} -- United States: country in North America
+\end{itemize}
+
+\vspace{1em}
+
+\noindent\textit{This appendix serves as a repository of technical precision, ensuring that every variable and result cited in the core document is transparently defined and reproducible.}
+
+\bibliographystyle{chicago}
+\bibliography{references}
+
+\end{document}

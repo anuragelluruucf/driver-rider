@@ -1,0 +1,108 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{Akerlof}{Akerlof}{1970}]{akerlof1970lemons}
+Akerlof, G.~A. (1970).
+\newblock The market for ``lemons'': Quality uncertainty and the market
+  mechanism.
+\newblock {\em The Quarterly Journal of Economics\/}~{\em 84\/}(3), 488--500.
+
+\bibitem[\protect\citeauthoryear{Athey and Imbens}{Athey and
+  Imbens}{2019}]{athey2019ml}
+Athey, S. and G.~W. Imbens (2019).
+\newblock Machine learning methods that economists should know about.
+\newblock {\em Annual Review of Economics\/}~{\em 11}, 685--725.
+
+\bibitem[\protect\citeauthoryear{Baker}{Baker}{1992}]{baker1992incentive}
+Baker, G.~P. (1992).
+\newblock Incentive contracts and performance measurement.
+\newblock {\em Journal of Political Economy\/}~{\em 100\/}(3), 598--614.
+
+\bibitem[\protect\citeauthoryear{Besbes, Castro, and Lobel}{Besbes
+  et~al.}{2021}]{besbes2021surge}
+Besbes, O., F.~Castro, and I.~Lobel (2021).
+\newblock Surge pricing and its spatial supply response.
+\newblock {\em Management Science\/}~{\em 67\/}(3), 1350--1367.
+
+\bibitem[\protect\citeauthoryear{Cabral and Horta\c{c}su}{Cabral and
+  Horta\c{c}su}{2010}]{cabral2010dynamics}
+Cabral, L. and A.~Horta\c{c}su (2010).
+\newblock The dynamics of seller reputation: Evidence from ebay.
+\newblock {\em Journal of Industrial Economics\/}~{\em 58\/}(1), 54--78.
+
+\bibitem[\protect\citeauthoryear{Cachon, Daniels, and Lobel}{Cachon
+  et~al.}{2017}]{cachon2017surge}
+Cachon, G.~P., K.~M. Daniels, and R.~Lobel (2017).
+\newblock The role of surge pricing on a service platform with self-scheduling
+  capacity.
+\newblock {\em Manufacturing \& Service Operations Management\/}~{\em 19\/}(3),
+  368--384.
+
+\bibitem[\protect\citeauthoryear{Cook, Diamond, Hall, List, and Oyer}{Cook
+  et~al.}{2021}]{cook2021gig}
+Cook, C., R.~Diamond, J.~V. Hall, J.~A. List, and P.~Oyer (2021).
+\newblock The gender earnings gap in the gig economy: Evidence from over a
+  million rideshare drivers.
+\newblock {\em The Review of Economic Studies\/}~{\em 88\/}(5), 2210--2238.
+
+\bibitem[\protect\citeauthoryear{Dranove and Jin}{Dranove and
+  Jin}{2010}]{dranove2010quality}
+Dranove, D. and G.~Z. Jin (2010).
+\newblock Quality disclosure and certification: Theory and practice.
+\newblock {\em Journal of Economic Literature\/}~{\em 48\/}(4), 935--963.
+
+\bibitem[\protect\citeauthoryear{Hall, Horton, and Knoepfle}{Hall
+  et~al.}{2019}]{hall2019pricing}
+Hall, J.~V., J.~J. Horton, and D.~T. Knoepfle (2019).
+\newblock Pricing in designed markets: The case of ride-sharing.
+\newblock Working Paper.
+
+\bibitem[\protect\citeauthoryear{Holmstr\"{o}m}{Holmstr\"{o}m}{1979}]{holmstrom1979moral}
+Holmstr\"{o}m, B. (1979).
+\newblock Moral hazard and observability.
+\newblock {\em The Bell Journal of Economics\/}~{\em 10\/}(1), 74--91.
+
+\bibitem[\protect\citeauthoryear{Holmstr\"{o}m and Milgrom}{Holmstr\"{o}m and
+  Milgrom}{1991}]{holmstrom1991multitask}
+Holmstr\"{o}m, B. and P.~Milgrom (1991).
+\newblock Multitask principal-agent analyses: Incentive contracts, asset
+  ownership, and job design.
+\newblock {\em Journal of Law, Economics, \& Organization\/}~{\em 7}, 24--52.
+
+\bibitem[\protect\citeauthoryear{Jovanovic}{Jovanovic}{1982}]{jovanovic1982selection}
+Jovanovic, B. (1982).
+\newblock Selection and the evolution of industry.
+\newblock {\em Econometrica\/}~{\em 50\/}(3), 649--670.
+
+\bibitem[\protect\citeauthoryear{Liu and Li}{Liu and
+  Li}{2023}]{liu2023strategic}
+Liu, Q. and J.~Li (2023).
+\newblock Strategic behavior in on-demand service platforms.
+\newblock {\em Management Science\/}.
+\newblock Forthcoming.
+
+\bibitem[\protect\citeauthoryear{Lundberg and Lee}{Lundberg and
+  Lee}{2017}]{lundberg2017unified}
+Lundberg, S.~M. and S.-I. Lee (2017).
+\newblock A unified approach to interpreting model predictions.
+\newblock In {\em Advances in Neural Information Processing Systems},
+  Volume~30, pp.\  4765--4774.
+
+\bibitem[\protect\citeauthoryear{McFadden}{McFadden}{1974}]{mcfadden1974conditional}
+McFadden, D. (1974).
+\newblock Conditional logit analysis of qualitative choice behavior.
+\newblock In P.~Zarembka (Ed.), {\em Frontiers in Econometrics}, pp.\
+  105--142. New York: Academic Press.
+
+\bibitem[\protect\citeauthoryear{Mullainathan and Spiess}{Mullainathan and
+  Spiess}{2017}]{mullainathan2017ml}
+Mullainathan, S. and J.~Spiess (2017).
+\newblock Machine learning: An applied econometric approach.
+\newblock {\em Journal of Economic Perspectives\/}~{\em 31\/}(2), 87--106.
+
+\bibitem[\protect\citeauthoryear{Zhang, Hu, Min, Wu, Zhang, Feng, Gong, and
+  Ye}{Zhang et~al.}{2023}]{zhang2023dispatch}
+Zhang, L., T.~Hu, Y.~Min, G.~Wu, P.~Zhang, P.~Feng, J.~Gong, and J.~Ye (2023).
+\newblock A taxi order dispatch model based on combinatorial optimization.
+\newblock {\em Production and Operations Management\/}~{\em 32\/}(2), 456--473.
+
+\end{thebibliography}
