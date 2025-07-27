@@ -10,6 +10,7 @@ import sys
 import time
 import subprocess
 import pandas as pd
+import zipfile
 
 def create_directories():
     """Create all necessary output directories"""
@@ -19,23 +20,48 @@ def create_directories():
     print("✓ Created output directories")
 
 def check_data_availability():
-    """Check if required data files exist"""
-    required_files = [
-        'shadowfax_processed-data-final.csv'
-    ]
-    
-    missing_files = []
-    for file in required_files:
-        if not os.path.exists(file):
-            missing_files.append(file)
-    
-    if missing_files:
-        print("\n⚠️  Missing required data files:")
-        for file in missing_files:
-            print(f"   - {file}")
+    """Ensure required data file is available.
+
+    If ``shadowfax_processed-data-final.csv`` is missing but the compressed
+    dataset ``train_filtered_no_long_postpickup.zip`` (or its extracted CSV)
+    is present, it will be extracted/renamed automatically.
+    """
+
+    required_file = 'shadowfax_processed-data-final.csv'
+
+    if not os.path.exists(required_file):
+        alt_csv = 'train_filtered_no_long_postpickup.csv'
+        alt_zip = 'train_filtered_no_long_postpickup.zip'
+
+        if not os.path.exists(alt_csv) and os.path.exists(alt_zip):
+            print(f"Extracting {alt_zip}...")
+            with zipfile.ZipFile(alt_zip, 'r') as zf:
+                for member in zf.namelist():
+                    if os.path.basename(member) == os.path.basename(alt_csv):
+                        member_path = os.path.join(os.getcwd(), member)
+                        if os.path.commonprefix([member_path, os.getcwd()]) == os.getcwd():
+                            zf.extract(member, os.getcwd())
+                        else:
+                            raise ValueError('Unsafe path in ZIP archive')
+                        break
+                else:
+                    print(f"\n⚠️  {alt_csv} not found inside {alt_zip}")
+
+        if os.path.exists(alt_csv):
+            if not os.path.exists(required_file):
+                os.symlink(alt_csv, required_file)
+            print(f"✓ Created symlink {required_file} -> {alt_csv}")
+            print("Running data preparation...")
+            subprocess.run([sys.executable, '00_prepare_data.py'], check=True)
+            os.remove(required_file)
+            os.rename('train_prepared.csv', required_file)
+
+    if not os.path.exists(required_file):
+        print("\n⚠️  Missing required data file:")
+        print(f"   - {required_file}")
         print("\nPlease ensure all data files are present before running analysis.")
         return False
-    
+
     print("✓ All required data files found")
     return True
 
